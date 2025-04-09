@@ -111,12 +111,10 @@ int main(void)
    
 * En quoi le paramètre TOTAL_HEAP_SIZE a-t-il de l’importance ?
   
-    > Le paramètre TOTAL_HEAP_SIZE sert à `...`
-
-* Observez l’impact de votre configuration sur le fichier FreeRTOSConfig.h
+    > TOTAL_HEAP_SIZE définit la quantité totale de mémoire RAM réservée aux allocations dynamiques, ce qui est crucial pour éviter les débordements et gérer efficacement les ressources limitées des systèmes embarqués. Une taille appropriée impacte directement la stabilité, les performances et la prédictibilité du programme.
 
 
-1. Créez une tâche permettant de faire changer l’état de la LED toutes les `100ms` et profitez-en pour afficher du texte à chaque changement d’état. 
+2. Créez une tâche permettant de faire changer l’état de la LED toutes les `100ms` et profitez-en pour afficher du texte à chaque changement d’état. 
    
 * Quel est le rôle de la macro portTICK_PERIOD_MS ?
 
