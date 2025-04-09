@@ -19,9 +19,9 @@ return ch;
 Cela permet à l'interprétteur de comprendre que le code entre ces deux marqueurs ne doit pas être écrésé le code a chaque regenérations du projet.
 
 Deux fonctions à utiliser :
-    > — HAL_Delay
+    > * HAL_Delay
 
-    > — HAL_GPIO_TogglePin
+    > * HAL_GPIO_TogglePin
 
 
 3. Quels sont les paramètres à passer à HAL_Delay et HAL_GPIO_TogglePin?
@@ -215,9 +215,219 @@ pouvant générer des erreurs. En cas d’erreur, affichez un message et appelez
 6. Notez la nouvelle utilisation mémoire.
    > la nouvelle utilisation mémoire `...`
 
-7. Dans CubeMX, augmentez la taille du tas (TOTAL_HEAP_SIZE). Générez le
-code, compilez et testez.
-1. Notez la nouvelle utilisation mémoire. Expliquez les trois relevés.
+7. Dans CubeMX, augmentez la taille du tas `(TOTAL_HEAP_SIZE)`. Générez le code, compilez et testez.
+```
+`...`
+```
+8. Notez la nouvelle utilisation mémoire. Expliquez les trois relevés.
+
+   > Le relevé n°1 correspond à `...`
+
+   > Le relevé n°2 correspond à `...`
+
+   > Le relevé n°3 correspond à `...`
+
+### 3.2 Gestion des piles
+*Dans cette partie du TP, vous allez utiliser un hook `(une fonction appelée par l’OS, dont on peut écrire le contenu)` pour détecter les dépassements de pile `(Stack Overflow en anglais)`.*
+1. Lisez la doc suivante :
+    > https://www.freertos.org/Stacks-and-stack-overflow-checking.html
+# notions de la doc :
+- Chaque tâche a sa propre pile.
+- La taille de la pile est définie lors de la création de la tâche (xTaskCreate() alloue dynamiquement, xTaskCreateStatic() nécessite une pré-allocation).
+- Le débordement de pile est une cause d'instabilité.
+- FreeRTOS offre deux mécanismes optionnels de détection via configCHECK_FOR_STACK_OVERFLOW (1 ou 2).
+- Si la vérification est activée (configCHECK_FOR_STACK_OVERFLOW != 0), une fonction hook vApplicationStackOverflowHook() doit être fournie par l'application.
+- La fonction hook reçoit des informations sur la tâche fautive (handle et nom), qui peuvent être corrompues en cas de débordement sévère.
+- La vérification de débordement introduit une surcharge et est recommandée principalement pour le développement et les tests.
+* Méthode 1 (rapide) : Vérifie si le pointeur de pile reste dans la plage valide après la commutation de contexte.
+* Méthode 2 (plus complète) : Vérifie si les 16 derniers octets de la pile (initialisés avec une valeur connue) ont été écrasés.
+* Méthode 3 (spécifique à certains ports) : Active la vérification de la pile des ISR et déclenche une assertion en cas de débordement (pas de fonction hook).
+#  
+2. Dans CubeMX, configurez `CHECK_FOR_STACK_OVERFLOW`
+
+3. Écrivez la fonction `vApplicationStackOverflowHook`. 
+> *(Rappel : C’est une fonction appelée automatiquement par FreeRTOS, vous n’avez pas à l’appeler vous-même).*
+
+4. Débrouillez vous pour remplir la pile d’une tâche pour tester. 
+   * Notez que, vu le contexte d’erreur, il ne sera peut-être pas possible de faire grand chose dans cette fonction. 
+   * Utilisez le debugger.
+
+
+5. Il existe d’autres hooks. Expliquez l’intérêt de chacun d’entre eux.
+
+### 3.3 Statistiques dans l’IDE
+*On peut afficher un certain nombre d’informations relatives à FreeRTOS dans STM32CubeIDE en mode debug.*
+1. Dans CubeMX, activez les trois paramètres suivants :
+> * GENERATE_RUN_TIME_STATS
+> * USE_TRACE_FACILITY
+> * USE_STATS_FORMATTING_FUNCTIONS
+
+2. Générez le code, compilez et lancez en mode debug
+
+3. Pour ajouter les statistiques, cliquez sur `Window` > `Show View` > `FreeRTOS` > `FreeRTOS Task List`. 
+
+*Vous pouvez aussi afficher les queues et les sémaphores.*
+
+
+4. Lancez le programme puis mettez-le en pause pour voir les statistiques.
+    > screen des statistiques 
+
+
+5. Cherchez dans CubeMX comment faire pour afficher l’utilisation de la pile.
+En mode debug, cliquez sur `Toggle Stack Checking` (dans l’onglet `FreeRTOSTask List` en haut à droite).
+
+
+6. Pour afficher le taux d’utilisation du CPU, il faut écrire les deux fonctions suivantes :
+# 1
+```
+void configureTimerForRunTimeStats(void);
+```
+#
+# 2
+```
+unsigned long getRunTimeCounterValue(void);
+```
+#
+* La première fonction doit démarrer un timer
+* la seconde permet de récupérer la valeur du timer. 
+
+*Si vous utilisez un timer 16 bits, il faudra peut-être bricoler un peu.*
+*Encore une fois, ce sont des hooks, elles sont donc automatiquement appelées par l’OS.*
+
+
+7. Affichez les sémaphores et les queues.
+    > screen des sémaphores et les queues. 
+
+8. Si vous n’en utilisez pas dans votre projet, créez deux tâches qui se partagent une queue ou un sémaphore.
+
+
+9. Pour leur donner un nom compréhensible, utilisez la fonction `vQueueAddToRegistry`.
+
+
+### 3.4 Affichage des statistiques dans le shell
+
+Vous pouvez vous référer à la documentation de FreeRTOS en suivant ce lien :
+
+> https://www.freertos.org/rtos-run-time-stats.html
+
+Deux fonctions seront utile à cette partie du TP :
+```
+void vTaskGetRunTimeStats(char * pcWriteBuffer);
+```
+```
+void vTaskList(char * pcWriteBuffer);
+```
+1. Écrire une fonction appelable depuis le shell pour afficher les statistiques dans le terminal.
+```
+`...`
+```
+
+## 4 Écriture d’un driver
+*Ce TP se fait à la suite du TP précédent, dans le même projet.*
+*L’objectif est d’écrire un driver réutilisable pour l’accéléromètre ADXL345.*
+### 4.1 Interfacer l’ADXL345
+1. Dans le fichier `ioc`, configurez les pins suivantes :
+> * PB14 : SPI2_MISO
+> * PB15 : SPI2_MOSI
+> * PI1 : SPI2_SCK
+> * PG7 : GPIO_EXTI7 (nommez le INT)
+> * PB4 : GPIO_Output (nommez le NSS), doit être à High par défaut.
+
+2. Configurez le `SPI2` en Mode `Full-Duplex Master`, puis configurez :
+> * Frame Format    : Motorola
+> * Clock Polarity  : High
+> * Clock Phase     : 2 Edge
+> * CRC Calculation : Disabled
+> * NSS Signal Type : Software
+> * Prescaler       : Valeur permettant d’avoir un Baud Rate compatible avec le composant (voir datasheet ADXL345)
+> * Pour le reste, voir la datasheet. https://www.analog.com/media/en/technical-documentation/data-sheets/adxl345.pdf
+
+3. Câblez le composant sur la carte Discovery :
+> * VCC  sur le 5V
+> * GND  sur GND
+> * CS   sur D3
+> * SDO  sur D12
+> * SDA  sur D11
+> * SCL  sur D13
+> * INT1 sur D4
+> * INT2 non connectée.
+
+### 4.2 Premiers tests
+*L’ADXL345, comme beaucoup de capteurs, est constitué de plusieurs registres.*
+*Ces registres sont accessible à travers un bus SPI.*
+1. Créez une fonction appelable depuis le shell pour faire vos tests.
+   
+Le registre DEVID (adresse 0x00) est une constante qui permet de tester la communication SPI. Pour lire un registre, il faut d’abord écrire l’adresse, puis lire la valeur, dans la même trame SPI. Inspirez vous de l’exemple ci-dessous.
+```
+HAL_GPIO_WritePin(NSS_GPIO_Port, NSS_Pin, GPIO_PIN_RESET);
+
+HAL_SPI_Transmit(&hspi2, &address, 1, HAL_MAX_DELAY);
+
+HAL_SPI_Receive(&hspi2, p_data, size, HAL_MAX_DELAY);
+
+HAL_GPIO_WritePin(NSS_GPIO_Port, NSS_Pin, GPIO_PIN_SET);
+```
+2. Dans la fonction shell, écrivez un code permettant de récupérer la valeur du `DEVID`, et vérifiez si elle est correcte.
+```
+`...`
+```
+
+3. Quelles sont les valeurs à mettre dans les registres `INT_ENABLE` et `POWER_CTL` pour démarrer la mesure et délencher une interruption à chaque mesure ?
+   
+    > les valeurs à mettre dans les registres `INT_ENABLE` et `POWER_CTL` sont `...`
+
+4. À la suite du code précédent, dans la fonction shell, écrivez un code permettant de lire `4 valeurs` consécutives. Utilisez du `polling` pour attendre que la broche `INT1` passe à `High`.
+```
+`...`
+```
+
+5. Faites la moyenne de ces quatre valeurs, mettez les accélérations en forme, et affichez-les à travers l’UART.
+
+    > Screen de l'UART
+```
+`...`
+```
+
+### 4.3 Driver SPI
+1. Créez un dossier `adxl345` à la racine.
+
+
+2. Ajoutez le dossier au path (`Click droit` > `Add/Remove include path` ...)
+
+
+3. `Project` > `Properties`, puis `C/C++ General` > `Paths and Symbols` > `Source Location`, cliquez sur `Add Folder` puis choissisez le dossier `adxl345`.
+
+
+4. Dans ce dossier, créez deux fichiers `drv_spi.c` et `drv_spi.h`.
+
+
+5. Créez également deux fichiers `adxl345.c` et `adxl345.h`.
+
+
+6. Dans `drv_spi.h`, écrivez le prototype des trois fonctions suivantes :
+    > int drv_spi_init(void);
+
+    > int drv_spi_write(uint8_t address, uint8_t * p_data, uint16_t size);
+
+    > int drv_spi_read(uint8_t address, uint8_t * p_data, uint16_t size);
+
+
+7. Écrivez le contenu des fonctions dans le fichier `drv_spi.c`. 
+   * La fonction d’initialisation ne fait rien pour l’instant. 
+   * Les fonctions read et write utilisent les fonctions de la HAL. 
+   * Pour l’instant vous n’utiliserez pas d’interruption.
+
+
+8. Testez le driver dans le code précédent.
+
+### 4.4 Squelette du driver
+
+# DEUS VULT
+
+
+
+
+
 
 
 
