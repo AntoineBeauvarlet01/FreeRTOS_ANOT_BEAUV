@@ -1,6 +1,6 @@
 # FreeRTOS_ANOT_BEAUV
 TP 3DN-Noyau temps réel
-
+![alt text](image.png)
 Commande à ajouter dans el main.c
 
 ```
@@ -106,6 +106,8 @@ On pourra par exemple invoquer un reset software au STM32 si le sémaphore n’e
 `...`
 ```
 ### 1.5 Réentrance et exclusion mutuelle
+
+9. Recopiez le code ci-dessous – au bon endroit – dans votre code.
 ```
 #define STACK_SIZE 256
 #define TASK1_PRIORITY 1
@@ -135,3 +137,40 @@ void task_bug(void * pvParameters)
 }
 
 ```
+
+10. Observez attentivement la sortie dans la console. Expliquez d’où vient le problème.
+
+Le problème proviens de `...`
+
+11. Proposez une solution en utilisant un sémaphore Mutex.
+```
+`...`
+
+```
+
+## 2 On va essayer de jouer avec le Shell
+# Attention !
+> Pour ce TP, il y a une petite subtilité. 
+> Seules les interruptions dont la priorité est supérieure à la valeur 
+> - `configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY` (définie à `5` par défaut)
+> peuvent appeler des primitives de FreeRTOS. 
+> 
+> On peut :
+> - soit modifier ce seuil, 
+> 
+> - soit modifier la priorité de l’interruption de l’USART1 (0 par défaut). 
+>     Dans l’exemple montré en Figure 1, la priorité de l’interruption de l’USART1 est fixée à 5.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
