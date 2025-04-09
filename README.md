@@ -114,7 +114,18 @@ int main(void)
     > TOTAL_HEAP_SIZE définit la quantité totale de mémoire RAM réservée aux allocations dynamiques, ce qui est crucial pour éviter les débordements et gérer efficacement les ressources limitées des systèmes embarqués. Une taille appropriée impacte directement la stabilité, les performances et la prédictibilité du programme.
 
 
-2. Créez une tâche permettant de faire changer l’état de la LED toutes les `100ms` et profitez-en pour afficher du texte à chaque changement d’état. 
+2. Créez une tâche permettant de faire changer l’état de la LED toutes les `100ms` et profitez-en pour afficher du texte à chaque changement d’état.
+```
+void task_led(void *unused)
+{
+	for(;;)
+	{
+		HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_1);
+		printf("La LED change d'etat\r\n");
+		vTaskDelay(100);
+	}
+}
+```
    
 * Quel est le rôle de la macro portTICK_PERIOD_MS ?
 
@@ -128,17 +139,111 @@ int main(void)
 `TaskGive` donne un sémaphore toutes les 100ms. Affichez du texte avant et après avoir donné le sémaphore. 
 `TaskTake` prend le sémaphore. Affichez du texte avant et après avoir pris le sémaphore.
 
+```
+void task_give(void *unused)
+{
+	uart1_rx_semaphore = xSemaphoreCreateBinary();
+
+	for(;;)
+	{
+		printf("AVANT GIVE\r\n");
+		xSemaphoreGive(uart1_rx_semaphore);
+		vTaskDelay(100);
+		printf("APRES GIVE\r\n");
+	}
+}
+
+
+void task_take(void *unused)
+{
+	uart1_rx_semaphore = xSemaphoreCreateBinary();
+
+	for(;;)
+	{
+		printf("AVANT TAKE\r\n");
+		xSemaphoreTake(uart1_rx_semaphore, HAL_MAX_DELAY);
+		printf("APRES TAKE\r\n");
+	}
+}
+
+```
+
 4. Ajoutez un mécanisme de gestion d’erreur lors de l’acquisition du sémaphore.
 On pourra par exemple invoquer un reset software au STM32 si le sémaphore n’est pas acquis au bout d’une seconde.
 
 5. Pour valider la gestion d’erreur, ajoutez 100ms au delai de TaskGive à chaque itération.
 ```
-`...`
+void task_give(void *unused)
+{
+	uart1_rx_semaphore = xSemaphoreCreateBinary();
+
+	for(;;)
+	{
+		printf("AVANT GIVE\r\n");
+		xSemaphoreGive(uart1_rx_semaphore);
+		vTaskDelay(200);
+		printf("APRES GIVE\r\n");
+	}
+}
+
+
+void task_take(void *unused)
+{
+	uart1_rx_semaphore = xSemaphoreCreateBinary();
+
+	for(;;)
+	{
+		printf("AVANT TAKE\r\n");
+		if (xSemaphoreTake(uart1_rx_semaphore, 1000) == pdFALSE) // Si le sémaphore n'est pas acquis au bout d'une seconde
+		{
+			NVIC_SystemReset(); // RESET
+		}
+		printf("APRES TAKE\r\n");
+	}
+}
+
 ```  
 
 6. Changez les priorités. Expliquez les changements dans l’affichage.
 
-    > En changeant la priorité `...` on obtiens `...`
+> Avec ces priorités (GIVE + prioritaire que TAKE) :
+```
+#define TASK_GIVE_PRIORITY 1
+#define TASK_TAKE_PRIORITY 2
+```
+On obtient :
+```
+AVANT TAKE (1)
+AVANT GIVE
+APRES GIVE
+AVANT GIVE
+APRES GIVE
+AVANT GIVE
+APRES GIVE
+AVANT GIVE
+APRES GIVE
+AVANT GIVE
+AVANT TAKE
+```
+On fait un TAKE (1), on attend 1 seconde (10x100ms), pas de GIVE donc on RESET et on retourne avant le TAKE.
+
+> Avec ces priorités (TAKE + prioritaire que GIVE) :
+ ```
+#define TASK_GIVE_PRIORITY 2
+#define TASK_TAKE_PRIORITY 1
+```
+On obtient :
+```
+AVANT GIVE (1)
+APRES TAKE (2)
+AVANT TAKE (3)
+APRES GIVE (4)
+AVANT GIVE
+APRES TAKE
+AVANT TAKE
+APRES GIVE
+```
+On est avant le GIVE (1), on attend la fin du TAKE, on se retrouve après le TAKE (2). On reboucle donc on est avant le TAKE (3). On a TAKE donc on peut GIVE et on se retrouve après GIVE (4).
 
 ### 1.3 Notification
 
