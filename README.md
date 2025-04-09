@@ -252,7 +252,7 @@ On est avant le GIVE (1), on attend la fin du TAKE, on se retrouve après le TAK
 ```
 `...`
 ```
-### 1.3 Queues
+### 1.4 Queues
 8. Modifiez `TaskGive` pour envoyer dans une queue la valeur du timer. 
 ```
 `...`
