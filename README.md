@@ -149,16 +149,16 @@ void task_bug(void * pvParameters)
 
 ## 2 On va essayer de jouer avec le Shell
 # Attention !
-    > Pour ce TP, il y a une petite subtilité. 
-    > Seules les interruptions dont la priorité est supérieure à la valeur 
-    > - `configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY` (définie à `5` par défaut)
-    > peuvent appeler des primitives de FreeRTOS. 
-    > 
-    > On peut :
-    > - soit modifier ce seuil, 
-    > 
-    > - soit modifier la priorité de l’interruption de l’USART1 (0 par défaut). 
-    >     Dans l’exemple montré en Figure 1, la priorité de l’interruption de l’USART1 est fixée à 5.
+> Pour ce TP, il y a une petite subtilité. 
+> Seules les interruptions dont la priorité est supérieure à la valeur 
+> - `configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY` (définie à `5` par défaut)
+> peuvent appeler des primitives de FreeRTOS. 
+> 
+> On peut :
+> - soit modifier ce seuil, 
+> 
+> - soit modifier la priorité de l’interruption de l’USART1 (0 par défaut). 
+>     Dans l’exemple montré en Figure 1, la priorité de l’interruption de l’USART1 est fixée à 5.
 #
 1. Terminer l’intégration du shell commencé en TD. Pour mémoire, les questions
 du TD sont rappelées ci-dessous :
