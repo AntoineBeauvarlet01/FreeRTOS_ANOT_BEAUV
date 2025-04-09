@@ -19,12 +19,12 @@ return ch;
 Cela permet à l'interprétteur de comprendre que le code entre ces deux marqueurs ne doit pas être écrésé le code a chaque regenérations du projet.
 
 Deux fonctions à utiliser :
-    > * HAL_Delay
+>  HAL_Delay
 
-    > * HAL_GPIO_TogglePin
+>  HAL_GPIO_TogglePin
 
 
-3. Quels sont les paramètres à passer à HAL_Delay et HAL_GPIO_TogglePin?
+1. Quels sont les paramètres à passer à HAL_Delay et HAL_GPIO_TogglePin?
    
 ```
 `...`
