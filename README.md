@@ -206,7 +206,7 @@ void task_take(void *unused)
 
 6. Changez les priorités. Expliquez les changements dans l’affichage.
 
-> Avec ces priorités (GIVE + prioritaire que TAKE) :
+Avec ces priorités (GIVE + prioritaire que TAKE) :
 ```
 #define TASK_GIVE_PRIORITY 1
 #define TASK_TAKE_PRIORITY 2
@@ -227,7 +227,8 @@ AVANT TAKE
 ```
 On fait un TAKE (1), on attend 1 seconde (10x100ms), pas de GIVE donc on RESET et on retourne avant le TAKE.
 
-> Avec ces priorités (TAKE + prioritaire que GIVE) :
+
+Avec ces priorités (TAKE + prioritaire que GIVE) :
  ```
 #define TASK_GIVE_PRIORITY 2
 #define TASK_TAKE_PRIORITY 1
