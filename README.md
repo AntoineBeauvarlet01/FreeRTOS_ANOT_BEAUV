@@ -11,12 +11,12 @@ return ch;
 ```
 
 1. Où se situe le fichier main.c?
-   
-    > Le fichier main.c se situe dans `...`
+
+> Le fichier main.c se situe dans le répertoire du projet, puis dans Core/Src/main.c.
 
 1. À quoi servent les commentaires indiquant BEGIN et END?
 
-Cela permet à l'interprétteur de comprendre que le code entre ces deux marqueurs ne doit pas être écrésé le code a chaque regenérations du projet.
+> Cela permet à l'interprétteur de comprendre que le code entre ces deux marqueurs ne doit pas être écrésé le code a chaque regenérations du projet.
 
 Deux fonctions à utiliser :
 >  HAL_Delay
@@ -27,29 +27,81 @@ Deux fonctions à utiliser :
 1. Quels sont les paramètres à passer à HAL_Delay et HAL_GPIO_TogglePin?
    
 ```
-`...`
+void HAL_Delay(uint32_t Delay);
+void HAL_GPIO_TogglePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
 ```
 4. Dans quel fichier les ports d’entrée/sorties sont-ils définis?
    
-Les E/S sont définient dans le fichier `...`
+Les E/S sont définient dans le fichier portant le nom du projet .ioc.
 
 5. Écrivez un programme simple permettant de faire clignoter la LED.
 ```
 /* USER CODE BEGIN WHILE */
   while (1)
   {
+    HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_1); // Inverser l'état de la broche PI1 (LD1)
+    HAL_Delay(500); // Attendre 500 ms
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_1); // Inverser l'état de la broche PI1 (LD1)
-    HAL_Delay(500); // Attendre 500 millisecondes (0.5 seconde)
   }
   /* USER CODE END 3 */
 ```
 6. Modifiez le programme pour que la LED s’allume lorsque le bouton USER est
 appuyé.
 ```
-`...`
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+#define TASK_LED_BOUTON_PRIORITY 3
+#define TASK_LED_BOUTON_STACK_DEPTH 250
+/* USER CODE END PD */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+void task_led_bouton(void *unused)
+{
+	for(;;)
+	{
+		GPIO_PinState buttonState = HAL_GPIO_ReadPin(GPIOI, GPIO_PIN_11);
+		if (buttonState == GPIO_PIN_SET) // Bouton appuyé (niveau haut)
+		{
+			HAL_GPIO_WritePin(GPIOI, GPIO_PIN_1, GPIO_PIN_SET); // LED ON
+		}
+		else
+		{
+			HAL_GPIO_WritePin(GPIOI, GPIO_PIN_1, GPIO_PIN_RESET); // LED OFF
+		}
+		vTaskDelay(50); / Pour réduire le nombre de passage dans la boucle
+	}
+}
+/* USER CODE END 0 */
+
+int main(void)
+{
+	// TOUS LES INIT
+
+	/* USER CODE BEGIN 2 */
+	BaseType_t returned_value;
+	returned_value = xTaskCreate(task_led_bouton,
+			"Task LED Bouton",
+			TASK_LED__BOUTON_STACK_DEPTH, /*taille de la pile*/
+			NULL, /*Paramètre qu'on donne à la fonction task_led -> on a dit qu'on ne s'en servait pas*/
+			TASK_LED_BOUTON_PRIORITY,
+			NULL);
+	if (returned_value != pdPASS) // pas assez de mémoire pour allouer la tâche
+	{
+		printf("Could not allocate Task LED Bouton\r\n");
+		Error_Handler();
+	}
+
+	xTaskCreate(task_led_bouton, "Task LED Bouton", TASK_LED_BOUTON_STACK_DEPTH, NULL, TASK_LED_BOUTON_PRIORITY, NULL);
+
+	vTaskStartScheduler(); // Appelle l'OS (avec une fonction freertos)
+	/* USER CODE END 2 */
+
+	// LA SUITE AVEC L'INIT DE FREERTOS, LE START SCHEDULER ET LA BOUCLE WHILE.
+}
+
 ```
 
 ## 1 FreeRTOS, tâches et sémaphores
