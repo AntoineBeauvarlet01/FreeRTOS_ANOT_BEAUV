@@ -1,0 +1,11 @@
+../Drivers/CMSIS/Include/core_cm7.h:2147:34:__NVIC_SystemReset	1
+../Core/Src/main.c:89:5:__io_putchar	1
+../Core/Src/main.c:95:6:task_led_bouton	2
+../Core/Src/main.c:114:6:task_led	1
+../Core/Src/main.c:125:6:task_give	1
+../Core/Src/main.c:139:6:task_take	1
+../Core/Src/main.c:186:5:main	2
+../Core/Src/main.c:283:6:SystemClock_Config	4
+../Core/Src/main.c:340:6:PeriphCommonClock_Config	2
+../Core/Src/main.c:375:6:HAL_TIM_PeriodElapsedCallback	2
+../Core/Src/main.c:392:6:Error_Handler	1
