@@ -245,7 +245,7 @@ AVANT TAKE
 APRES GIVE
 ```
 On est avant le GIVE (1), on attend la fin du TAKE, on se retrouve après le TAKE (2). On reboucle donc on est avant le TAKE (3). On a TAKE donc on peut GIVE et on se retrouve après GIVE (4).
-
+# On en est lààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààà
 ### 1.3 Notification
 
 7. Modifiez le code pour obtenir le même fonctionnement en utilisant des task notifications à la place des sémaphores.
