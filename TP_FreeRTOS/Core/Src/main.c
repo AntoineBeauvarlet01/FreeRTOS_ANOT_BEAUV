@@ -77,6 +77,7 @@
 
 /* USER CODE BEGIN PV */
 static SemaphoreHandle_t uart1_rx_semaphore;
+static TaskHandle_t task_uart1_handle;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -185,11 +186,36 @@ AVANT GIVE
 APRES TAKE
 AVANT TAKE
 APRES GIVE
-*/
+ */
 #endif
 
 #ifdef NOTIFICATION
-// A COMPLETER
+void task_give(void *unused)
+{
+	BaseType_t HigherPriorityTaskWoken;
+	for(;;)
+	{
+		printf("AVANT GIVE\r\n");
+		vTaskNotifyGiveFromISR(task_uart1_handle, &HigherPriorityTaskWoken);
+		vTaskDelay(200);
+		printf("APRES GIVE\r\n");
+	}
+	portYIELD_FROM_ISR(HigherPriorityTaskWoken);
+}
+
+
+void task_take(void *unused)
+{
+	for(;;)
+	{
+		printf("AVANT TAKE\r\n");
+		if (ulTaskNotifyTake(pdTRUE, 1000) == pdFALSE)
+		{
+			NVIC_SystemReset(); // RESET
+		}
+		printf("APRES TAKE\r\n");
+	}
+}
 #endif
 /* USER CODE END 0 */
 
@@ -250,7 +276,7 @@ int main(void)
 	MX_FATFS_Init();
 	/* USER CODE BEGIN 2 */
 	xTaskCreate(task_give, "Task GIVE", TASK_GIVE_STACK_DEPTH, NULL, TASK_GIVE_PRIORITY, NULL);
-	xTaskCreate(task_take, "Task TAKE", TASK_TAKE_STACK_DEPTH, NULL, TASK_TAKE_PRIORITY, NULL);
+	xTaskCreate(task_take, "Task TAKE", TASK_TAKE_STACK_DEPTH, NULL, TASK_TAKE_PRIORITY, &task_uart1_handle);
 
 	BaseType_t returned_value;
 
