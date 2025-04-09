@@ -422,7 +422,7 @@ HAL_GPIO_WritePin(NSS_GPIO_Port, NSS_Pin, GPIO_PIN_SET);
 
 ### 4.4 Squelette du driver
 
-# DEUS VULT
+# DEUS VULT 8/8
 
 
 
