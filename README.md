@@ -140,32 +140,33 @@ void task_led(void *unused)
 `TaskTake` prend le sémaphore. Affichez du texte avant et après avoir pris le sémaphore.
 
 ```
+// Dans le main :
+task_semaphore = xSemaphoreCreateBinary();
+
+xTaskCreate(task_give, "Task GIVE", TASK_GIVE_STACK_DEPTH, NULL, TASK_GIVE_PRIORITY, NULL);
+xTaskCreate(task_take, "Task TAKE", TASK_TAKE_STACK_DEPTH, NULL, TASK_TAKE_PRIORITY, NULL);
+// Fin main
+
 void task_give(void *unused)
 {
-	uart1_rx_semaphore = xSemaphoreCreateBinary();
-
 	for(;;)
 	{
 		printf("AVANT GIVE\r\n");
-		xSemaphoreGive(uart1_rx_semaphore);
+		xSemaphoreGive(task_semaphore);
 		vTaskDelay(100);
 		printf("APRES GIVE\r\n");
 	}
 }
 
-
 void task_take(void *unused)
 {
-	uart1_rx_semaphore = xSemaphoreCreateBinary();
-
 	for(;;)
 	{
 		printf("AVANT TAKE\r\n");
-		xSemaphoreTake(uart1_rx_semaphore, HAL_MAX_DELAY);
+		xSemaphoreTake(task_semaphore, HAL_MAX_DELAY);
 		printf("APRES TAKE\r\n");
 	}
 }
-
 ```
 
 4. Ajoutez un mécanisme de gestion d’erreur lors de l’acquisition du sémaphore.
@@ -175,33 +176,31 @@ On pourra par exemple invoquer un reset software au STM32 si le sémaphore n’e
 ```
 void task_give(void *unused)
 {
-	uart1_rx_semaphore = xSemaphoreCreateBinary();
+	TickType_t delay = 100;
 
 	for(;;)
 	{
 		printf("AVANT GIVE\r\n");
-		xSemaphoreGive(uart1_rx_semaphore);
-		vTaskDelay(200);
-		printf("APRES GIVE\r\n");
+		xSemaphoreGive(task_semaphore);
+		printf("\tAPRES GIVE -- %d\r\n", delay);
+		vTaskDelay(delay);
+		delay += 100;
 	}
 }
-
 
 void task_take(void *unused)
 {
-	uart1_rx_semaphore = xSemaphoreCreateBinary();
-
 	for(;;)
 	{
-		printf("AVANT TAKE\r\n");
-		if (xSemaphoreTake(uart1_rx_semaphore, 1000) == pdFALSE) // Si le sémaphore n'est pas acquis au bout d'une seconde
+		printf("\t\tAVANT TAKE\r\n");
+		if (xSemaphoreTake(task_semaphore, 1000) == pdFALSE) // Si le sémaphore n'est pas acquis au bout d'une seconde
 		{
 			NVIC_SystemReset(); // RESET
+			printf("----- RESET\r\n");
 		}
-		printf("APRES TAKE\r\n");
+		printf("\t\t\tAPRES TAKE\r\n");
 	}
 }
-
 ```  
 
 6. Changez les priorités. Expliquez les changements dans l’affichage.
@@ -213,20 +212,52 @@ Avec ces priorités (GIVE + prioritaire que TAKE) :
 ```
 On obtient :
 ```
-AVANT TAKE (1)
 AVANT GIVE
-APRES GIVE
+                        APRES TAKE
+                AVANT TAKE
+        APRES GIVE -- 100
 AVANT GIVE
-APRES GIVE
+                        APRES TAKE
+                AVANT TAKE
+        APRES GIVE -- 200
 AVANT GIVE
-APRES GIVE
+                        APRES TAKE
+                AVANT TAKE
+        APRES GIVE -- 300
 AVANT GIVE
-APRES GIVE
+                        APRES TAKE
+                AVANT TAKE
+        APRES GIVE -- 400
 AVANT GIVE
-AVANT TAKE
+                        APRES TAKE
+                AVANT TAKE
+        APRES GIVE -- 500
+AVANT GIVE
+                        APRES TAKE
+                AVANT TAKE
+        APRES GIVE -- 600
+AVANT GIVE
+                        APRES TAKE
+                AVANT TAKE
+        APRES GIVE -- 700
+AVANT GIVE
+                        APRES TAKE
+                AVANT TAKE
+        APRES GIVE -- 800
+AVANT GIVE
+                        APRES TAKE
+                AVANT TAKE
+        APRES GIVE -- 900
+AVANT GIVE
+                        APRES TAKE
+                AVANT TAKE
+        APRES GIVE -- 1000
+                AVANT TAKE
+AVANT GIVE
+                        APRES TAKE
+                AVANT TAKE
+        APRES GIVE -- 100
 ```
-On fait un TAKE (1), on attend 1 seconde (10x100ms), pas de GIVE donc on RESET et on retourne avant le TAKE.
-
 
 Avec ces priorités (TAKE + prioritaire que GIVE) :
  ```
@@ -235,73 +266,93 @@ Avec ces priorités (TAKE + prioritaire que GIVE) :
 ```
 On obtient :
 ```
-AVANT GIVE (1)
-APRES TAKE (2)
-AVANT TAKE (3)
-APRES GIVE (4)
 AVANT GIVE
-APRES TAKE
-AVANT TAKE
-APRES GIVE
+        APRES GIVE -- 100
+                AVANT TAKE
+                        APRES TAKE
+                AVANT TAKE
+AVANT GIVE
+        APRES GIVE -- 200
+                        APRES TAKE
+                AVANT TAKE
+AVANT GIVE
+        APRES GIVE -- 300
+                        APRES TAKE
+                AVANT TAKE
+AVANT GIVE
+        APRES GIVE -- 400
+                        APRES TAKE
+                AVANT TAKE
+AVANT GIVE
+        APRES GIVE -- 500
+                        APRES TAKE
+                AVANT TAKE
+AVANT GIVE
+        APRES GIVE -- 600
+                        APRES TAKE
+                AVANT TAKE
+AVANT GIVE
+        APRES GIVE -- 700
+                        APRES TAKE
+                AVANT TAKE
+AVANT GIVE
+        APRES GIVE -- 800
+                        APRES TAKE
+                AVANT TAKE
+AVANT GIVE
+        APRES GIVE -- 900
+                        APRES TAKE
+                AVANT TAKE
+AVANT GIVE
+        APRES GIVE -- 1000
+                        APRES TAKE
+                AVANT TAKE
+AVANT GIVE
+        APRES GIVE -- 1100
+                        APRES TAKE
+                AVANT TAKE
+AVANT GIVE
+        APRES GIVE -- 100
+                AVANT TAKE
+                        APRES TAKE
+                AVANT TAKE
 ```
-On est avant le GIVE (1), on attend la fin du TAKE, on se retrouve après le TAKE (2). On reboucle donc on est avant le TAKE (3). On a TAKE donc on peut GIVE et on se retrouve après GIVE (4).
 
 ### 1.3 Notification
 
 7. Modifiez le code pour obtenir le même fonctionnement en utilisant des task notifications à la place des sémaphores.
 ```
-#include <stdio.h>
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
-
-// Handles des tâches
-TaskHandle_t xTaskGiveHandle = NULL;
-TaskHandle_t xTaskTakeHandle = NULL;
-
-// Déclaration des fonctions des tâches
-void task_give(void *unused);
-void task_take(void *unused);
-
-void app_main(void) {
-    // Création des tâches
-    xTaskCreate(task_give, "TaskGive", 128, NULL, 1, &xTaskGiveHandle);
-    xTaskCreate(task_take, "TaskTake", 128, NULL, 1, &xTaskTakeHandle);
-
-    // Démarrage du scheduler FreeRTOS
-    vTaskStartScheduler();
-}
+// Dans le main :
+xTaskCreate(task_give, "Task GIVE", TASK_GIVE_STACK_DEPTH, NULL, TASK_GIVE_PRIORITY, task_give_handle);
+xTaskCreate(task_take, "Task TAKE", TASK_TAKE_STACK_DEPTH, NULL, TASK_TAKE_PRIORITY, task_take_handle);
+// Fin main
 
 void task_give(void *unused)
 {
+	TickType_t delay = 100;
+
 	for(;;)
 	{
-		printf("AVANT GIVE (Notification)\r\n");
-		// Envoyer une notification à la tâche de réception
-		xTaskNotifyGive(xTaskTakeHandle);
-		vTaskDelay(pdMS_TO_TICKS(100));
-		printf("APRES GIVE (Notification)\r\n");
+		printf("AVANT GIVE\r\n");
+		xTaskNotifyGive(task_take_handle);
+		printf("\tAPRES GIVE -- %d\r\n", delay);
+		vTaskDelay(delay);
+		delay += 100;
 	}
 }
 
+
 void task_take(void *unused)
 {
-	uint32_t ulNotificationValue;
-
 	for(;;)
 	{
-		printf("AVANT TAKE (Notification)\r\n");
-		// Attendre une notification de la tâche d'émission
-		ulNotificationValue = ulTaskNotifyTake(pdTRUE, HAL_MAX_DELAY);
-		if( ulNotificationValue > 0 )
+		printf("\t\tAVANT TAKE\r\n");
+		if (ulTaskNotifyTake(pdTRUE, 1000) == pdFALSE)
 		{
-			printf("APRES TAKE (Notification) - Notification reçue\r\n");
+			NVIC_SystemReset(); // RESET
+			printf("----- RESET\r\n");
 		}
-		else
-		{
-			// Timeout ou erreur (ici HAL_MAX_DELAY ne provoque pas de timeout)
-			printf("APRES TAKE (Notification) - Erreur lors de la réception de la notification\r\n");
-		}
+		printf("\t\t\tAPRES TAKE\r\n");
 	}
 }
 ```
