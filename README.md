@@ -505,54 +505,25 @@ Je suis Tache 2 et je m'endors pour 2 ticks
 
 11. Proposez une solution en utilisant un sémaphore Mutex.
 ```
-#include <stdio.h>
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
-
-#define STACK_SIZE 256
-#define TASK1_PRIORITY 1
-#define TASK2_PRIORITY 2
-#define TASK1_DELAY 1
-#define TASK2_DELAY 2
-
-// Handle du sémaphore Mutex pour protéger l'accès à printf
-SemaphoreHandle_t xPrintfMutex;
+// Dans les déclarations :
+static SemaphoreHandle_t semaphore_bug;
 
 void task_bug(void * pvParameters)
 {
-    int delay = (int) pvParameters;
-    for(;;)
-        {
-        // Prendre le Mutex avant d'utiliser printf
-        if( xSemaphoreTake( xPrintfMutex, portMAX_DELAY ) == pdTRUE )
-        {
-            printf("Je suis %s et je m'endors pour %d ticks\r\n", pcTaskGetName(NULL), delay);
-            // Relâcher le Mutex après avoir utilisé printf
-            xSemaphoreGive( xPrintfMutex );
-        }
-        vTaskDelay(delay);
-        }
+	int delay = (int) pvParameters;
+	for(;;)
+	{
+		if (xSemaphoreTake(semaphore_bug, portMAX_DELAY) == pdTRUE) // On prend le sémaphore
+		{
+			printf("Je suis %s et je m'endors pour %d ticks\r\n", pcTaskGetName(NULL), delay);
+			xSemaphoreGive(semaphore_bug); // On donne le sémaphore
+		}
+		vTaskDelay(delay);
+	}
 }
 
-void app_main(void)
-{
-    BaseType_t ret;
-
-    // Créer le sémaphore Mutex
-    xPrintfMutex = xSemaphoreCreateMutex();
-    configASSERT( xPrintfMutex != NULL );
-
-    ret = xTaskCreate(task_bug, "Tache 1", STACK_SIZE, \
-    (void *) TASK1_DELAY, TASK1_PRIORITY, NULL);
-    configASSERT(pdPASS == ret);
-    ret = xTaskCreate(task_bug, "Tache 2", STACK_SIZE, \
-    (void *) TASK2_DELAY, TASK2_PRIORITY, NULL);
-    configASSERT(pdPASS == ret);
-
-    // Démarrer le scheduler FreeRTOS
-    vTaskStartScheduler();
-}
+// Dans le main, on ajoute cette ligne :
+semaphore_bug = xSemaphoreCreateMutex();
 ```
 
 ## 2 On va essayer de jouer avec le Shell
