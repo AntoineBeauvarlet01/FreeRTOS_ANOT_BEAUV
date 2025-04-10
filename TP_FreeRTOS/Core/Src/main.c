@@ -40,7 +40,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -63,8 +62,17 @@
 #define TASK_TAKE_STACK_DEPTH 250
 
 
-#define NOTIFICATION
+#define STACK_SIZE 256
+#define TASK1_PRIORITY 1
+#define TASK2_PRIORITY 2
+#define TASK1_DELAY 1
+#define TASK2_DELAY 2
+
+
 //#define SEMAPHORE
+//#define NOTIFICATION
+//#define QUEUE
+//#define REENTRANCE
 
 /* USER CODE END PD */
 
@@ -76,8 +84,13 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-static SemaphoreHandle_t uart1_rx_semaphore;
-static TaskHandle_t task_uart1_handle;
+static SemaphoreHandle_t task_semaphore;
+static SemaphoreHandle_t semaphore_bug;
+
+static TaskHandle_t task_give_handle = NULL;
+static TaskHandle_t task_take_handle = NULL;
+
+static QueueHandle_t task_queue = NULL;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -129,91 +142,109 @@ void task_led(void *unused)
 #ifdef SEMAPHORE
 void task_give(void *unused)
 {
-	uart1_rx_semaphore = xSemaphoreCreateBinary();
+	TickType_t delay = 100;
 
 	for(;;)
 	{
 		printf("AVANT GIVE\r\n");
-		xSemaphoreGive(uart1_rx_semaphore);
-		vTaskDelay(200);
-		printf("APRES GIVE\r\n");
+		xSemaphoreGive(task_semaphore);
+		printf("\tAPRES GIVE -- %d\r\n", delay);
+		vTaskDelay(delay);
+		delay += 100;
 	}
 }
-
 
 void task_take(void *unused)
 {
-	uart1_rx_semaphore = xSemaphoreCreateBinary();
-
 	for(;;)
 	{
-		printf("AVANT TAKE\r\n");
-		if (xSemaphoreTake(uart1_rx_semaphore, 1000) == pdFALSE) // Si le sémaphore n'est pas acquis au bout d'une seconde
+		printf("\t\tAVANT TAKE\r\n");
+		if (xSemaphoreTake(task_semaphore, 1000) == pdFALSE) // Si le sémaphore n'est pas acquis au bout d'une seconde
 		{
 			NVIC_SystemReset(); // RESET
+			printf("----- RESET\r\n");
 		}
-		printf("APRES TAKE\r\n");
+		printf("\t\t\tAPRES TAKE\r\n");
 	}
 }
-
-/*
-#define TASK_GIVE_PRIORITY 1
-#define TASK_TAKE_PRIORITY 2
-La on fait un TAKE, on attend 1 seconde, pas de give donc on reset
-AVANT TAKE
-AVANT GIVE
-APRES GIVE
-AVANT GIVE
-APRES GIVE
-AVANT GIVE
-APRES GIVE
-AVANT GIVE
-APRES GIVE
-AVANT GIVE
-AVANT TAKE
-
-
-#define TASK_GIVE_PRIORITY 2
-#define TASK_TAKE_PRIORITY 1
-La on fait un TAKE, donc on arrive après GIVE, on retourne avant GIVE, puis on arrive après TAKE
-AVANT TAKE
-APRES GIVE
-AVANT GIVE
-APRES TAKE
-AVANT TAKE
-APRES GIVE
-AVANT GIVE
-APRES TAKE
-AVANT TAKE
-APRES GIVE
- */
 #endif
 
 #ifdef NOTIFICATION
 void task_give(void *unused)
 {
-	BaseType_t HigherPriorityTaskWoken;
+	TickType_t delay = 100;
+
 	for(;;)
 	{
 		printf("AVANT GIVE\r\n");
-		vTaskNotifyGiveFromISR(task_uart1_handle, &HigherPriorityTaskWoken);
-		vTaskDelay(200);
-		printf("APRES GIVE\r\n");
+		xTaskNotifyGive(task_take_handle);
+		printf("\tAPRES GIVE -- %d\r\n", delay);
+		vTaskDelay(delay);
+		delay += 100;
 	}
-	portYIELD_FROM_ISR(HigherPriorityTaskWoken);
 }
-
 
 void task_take(void *unused)
 {
 	for(;;)
 	{
-		printf("AVANT TAKE\r\n");
+		printf("\t\tAVANT TAKE\r\n");
 		if (ulTaskNotifyTake(pdTRUE, 1000) == pdFALSE)
 		{
 			NVIC_SystemReset(); // RESET
+			printf("----- RESET\r\n");
 		}
-		printf("APRES TAKE\r\n");
+		printf("\t\t\tAPRES TAKE\r\n");
+	}
+}
+#endif
+
+#ifdef QUEUE
+void task_give(void *unused)
+{
+	TickType_t delay = 100;
+
+	for (;;)
+	{
+		TickType_t tick_value = xTaskGetTickCount();
+		printf("AVANT GIVE : %lu\r\n", tick_value);
+		xQueueSend(task_queue, &tick_value, portMAX_DELAY);
+		vTaskDelay(delay);
+		printf("\tAPRES GIVE : %lu\r\n", tick_value);
+		delay += 100;
+	}
+}
+
+void task_take(void *unused)
+{
+	TickType_t tick_value;
+
+	for (;;)
+	{
+		printf("\t\tAVANT TAKE\r\n");
+		if (xQueueReceive(task_queue, &tick_value, 1000) == pdFALSE)
+		{
+			NVIC_SystemReset();
+			printf("----- RESET\r\n");
+
+		}
+		printf("\t\t\tAPRES TAKE : %lu\r\n", tick_value);
+	}
+}
+#endif
+
+#ifdef REENTRANCE
+void task_bug(void * pvParameters)
+{
+	int delay = (int) pvParameters;
+	for(;;)
+	{
+		if (xSemaphoreTake(semaphore_bug, portMAX_DELAY) == pdTRUE) // On prend le sémaphore
+		{
+			printf("Je suis %s et je m'endors pour %d ticks\r\n", pcTaskGetName(NULL), delay);
+			xSemaphoreGive(semaphore_bug); // On donne le sémaphore
+		}
+		vTaskDelay(delay);
 	}
 }
 #endif
@@ -275,24 +306,32 @@ int main(void)
 	MX_USART6_UART_Init();
 	MX_FATFS_Init();
 	/* USER CODE BEGIN 2 */
-	xTaskCreate(task_give, "Task GIVE", TASK_GIVE_STACK_DEPTH, NULL, TASK_GIVE_PRIORITY, NULL);
-	xTaskCreate(task_take, "Task TAKE", TASK_TAKE_STACK_DEPTH, NULL, TASK_TAKE_PRIORITY, &task_uart1_handle);
 
-	BaseType_t returned_value;
+	//shell_init();
+	//shell_run();
 
-	returned_value = xTaskCreate(task_led,
-			"Task LED",
-			TASK_LED_STACK_DEPTH, /*taille de la pile*/
-			NULL, /*Paramètre qu'on donne à la fonction task_led -> on a dit qu'on ne s'en servait pas*/
-			TASK_LED_PRIORITY,
-			NULL);
-	if (returned_value != pdPASS) // pas assez de mémoire pour allouer la tâche
-	{
-		printf("Could not allocate Task LED\r\n");
-		Error_Handler();
-	}
+	//semaphore_bug = xSemaphoreCreateMutex();
+	//BaseType_t ret;
+	//ret = xTaskCreate(task_bug, "Tache 1", STACK_SIZE, (void *)TASK1_DELAY, TASK1_PRIORITY, NULL);
+	//configASSERT(pdPASS == ret);
+	//ret = xTaskCreate(task_bug, "Tache 2", STACK_SIZE, (void *)TASK2_DELAY, TASK2_PRIORITY, NULL);
+	//configASSERT(pdPASS == ret);
 
-	xTaskCreate(task_led_bouton, "Task LED Bouton", TASK_LED_BOUTON_STACK_DEPTH, NULL, TASK_LED_BOUTON_PRIORITY, NULL);
+	//task_queue = xQueueCreate(10, sizeof(TickType_t));
+	//task_semaphore = xSemaphoreCreateBinary();
+
+	//xTaskCreate(task_give, "Task GIVE", TASK_GIVE_STACK_DEPTH, NULL, TASK_GIVE_PRIORITY, NULL);
+	//xTaskCreate(task_take, "Task TAKE", TASK_TAKE_STACK_DEPTH, NULL, TASK_TAKE_PRIORITY, NULL);
+
+	//BaseType_t returned_value;
+	//returned_value = xTaskCreate(task_led, "Task LED", TASK_LED_STACK_DEPTH, NULL, TASK_LED_PRIORITY, NULL);
+	//if (returned_value != pdPASS) // pas assez de mémoire pour allouer la tâche
+	//{
+	//	printf("Could not allocate Task LED\r\n");
+	//	Error_Handler();
+	//}
+
+	//xTaskCreate(task_led_bouton, "Task LED Bouton", TASK_LED_BOUTON_STACK_DEPTH, NULL, TASK_LED_BOUTON_PRIORITY, NULL);
 
 	vTaskStartScheduler(); // Appelle l'OS (avec une fonction freertos)
 	/* USER CODE END 2 */
