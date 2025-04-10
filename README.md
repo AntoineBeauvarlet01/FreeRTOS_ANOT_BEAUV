@@ -357,157 +357,136 @@ void task_take(void *unused)
 }
 ```
 ### 1.4 Queues
-8. Modifiez `TaskGive` pour envoyer dans une queue la valeur du timer. 
+8. Modifiez `TaskGive` pour envoyer dans une queue la valeur du timer. Modifiez `TaskTake` pour réceptionner et afficher cette valeur.
 ```
-#include <stdio.h>
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
-#include "timers.h"
-
-// Handles des tâches et de la queue
-TaskHandle_t xTaskGiveHandle = NULL;
-TaskHandle_t xTaskTakeHandle = NULL;
-QueueHandle_t xTimerQueue = NULL;
-
-// Déclaration des fonctions des tâches
-void task_give(void *unused);
-void task_take(void *unused);
-
-void app_main(void) {
-    // Création de la queue pour contenir les valeurs du timer
-    xTimerQueue = xQueueCreate(5, sizeof(TickType_t)); // Taille de la queue = 5, chaque élément est un TickType_t
-
-    // Création des tâches
-    xTaskCreate(task_give, "TaskGive", 128, NULL, 1, &xTaskGiveHandle);
-    xTaskCreate(task_take, "TaskTake", 128, NULL, 1, &xTaskTakeHandle);
-
-    // Démarrage du scheduler FreeRTOS
-    vTaskStartScheduler();
-}
-
 void task_give(void *unused)
 {
-	for(;;)
+	TickType_t delay = 100;
+
+	for (;;)
 	{
-		printf("AVANT GIVE (Queue)\r\n");
-		TickType_t xTimeNow = xTaskGetTickCount(); // Récupérer la valeur actuelle du timer
-		BaseType_t xQueueSendStatus;
-
-		// Envoyer la valeur du timer dans la queue
-		xQueueSendStatus = xQueueSendToBack(xTimerQueue, &xTimeNow, pdMS_TO_TICKS(10)); // Délai de 10ms si la queue est pleine
-
-		if( xQueueSendStatus != pdPASS )
-		{
-			printf("Erreur: Impossible d'envoyer la valeur du timer dans la queue.\r\n");
-		}
-		else
-		{
-			printf("APRES GIVE (Queue) - Valeur du timer envoyée: %lu\r\n", xTimeNow);
-		}
-
-		vTaskDelay(pdMS_TO_TICKS(100));
+		TickType_t tick_value = xTaskGetTickCount();
+		printf("AVANT GIVE : %lu\r\n", tick_value);
+		xQueueSend(task_queue, &tick_value, portMAX_DELAY);
+		vTaskDelay(delay);
+		printf("\tAPRES GIVE : %lu\r\n", tick_value);
+		delay += 100;
 	}
 }
 
 void task_take(void *unused)
 {
-	TickType_t uxReceivedValue;
-	BaseType_t xQueueReceiveStatus;
+	TickType_t tick_value;
 
-	for(;;)
+	for (;;)
 	{
-		printf("AVANT TAKE (Queue)\r\n");
-
-		// Recevoir une valeur de la queue (attente indéfinie)
-		xQueueReceiveStatus = xQueueReceive(xTimerQueue, &uxReceivedValue, portMAX_DELAY);
-
-		if( xQueueReceiveStatus == pdPASS )
+		printf("\t\tAVANT TAKE\r\n");
+		if (xQueueReceive(task_queue, &tick_value, 1000) == pdFALSE)
 		{
-			printf("APRES TAKE (Queue) - Valeur du timer reçue: %lu\r\n", uxReceivedValue);
+			NVIC_SystemReset();
+			printf("----- RESET\r\n");
+
 		}
-		else
-		{
-			printf("APRES TAKE (Queue) - Erreur lors de la réception depuis la queue.\r\n");
-		}
+		printf("\t\t\tAPRES TAKE : %lu\r\n", tick_value);
 	}
 }
 ```
-9.  Modifiez `TaskTake` pour réceptionner et afficher cette valeur.
+
+Résultats :
+#define TASK_GIVE_PRIORITY 1
+#define TASK_TAKE_PRIORITY 2
 ```
-#include <stdio.h>
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
-#include "timers.h"
+AVANT GIVE : 1
+                        APRES TAKE : 1
+                AVANT TAKE
+        APRES GIVE : 1
+AVANT GIVE : 106
+                        APRES TAKE : 106
+                AVANT TAKE
+        APRES GIVE : 106
+AVANT GIVE : 312
+                        APRES TAKE : 312
+                AVANT TAKE
+        APRES GIVE : 312
+AVANT GIVE : 618
+                        APRES TAKE : 618
+                AVANT TAKE
+        APRES GIVE : 618
+AVANT GIVE : 1024
+                        APRES TAKE : 1024
+                AVANT TAKE
+        APRES GIVE : 1024
+AVANT GIVE : 1530
+                        APRES TAKE : 1530
+                AVANT TAKE
+        APRES GIVE : 1530
+AVANT GIVE : 2136
+                        APRES TAKE : 2136
+                AVANT TAKE
+        APRES GIVE : 2136
+AVANT GIVE : 2842
+                        APRES TAKE : 2842
+                AVANT TAKE
+        APRES GIVE : 2842
+AVANT GIVE : 3648
+                        APRES TAKE : 3648
+                AVANT TAKE
+        APRES GIVE : 3648
+AVANT GIVE : 4554
+                        APRES TAKE : 4554
+                AVANT TAKE
+                AVANT TAKE
+AVANT GIVE : 1
+```
 
-// Handles des tâches et de la queue
-TaskHandle_t xTaskGiveHandle = NULL;
-TaskHandle_t xTaskTakeHandle = NULL;
-QueueHandle_t xTimerQueue = NULL;
-
-// Déclaration des fonctions des tâches
-void task_give(void *unused);
-void task_take(void *unused);
-
-void app_main(void) {
-    // Création de la queue pour contenir les valeurs du timer
-    xTimerQueue = xQueueCreate(5, sizeof(TickType_t)); // Taille de la queue = 5, chaque élément est un TickType_t
-
-    // Création des tâches
-    xTaskCreate(task_give, "TaskGive", 128, NULL, 1, &xTaskGiveHandle);
-    xTaskCreate(task_take, "TaskTake", 128, NULL, 1, &xTaskTakeHandle);
-
-    // Démarrage du scheduler FreeRTOS
-    vTaskStartScheduler();
-}
-
-void task_give(void *unused)
-{
-	for(;;)
-	{
-		printf("AVANT GIVE (Queue)\r\n");
-		TickType_t xTimeNow = xTaskGetTickCount(); // Récupérer la valeur actuelle du timer
-		BaseType_t xQueueSendStatus;
-
-		// Envoyer la valeur du timer dans la queue
-		xQueueSendStatus = xQueueSendToBack(xTimerQueue, &xTimeNow, pdMS_TO_TICKS(10)); // Délai de 10ms si la queue est pleine
-
-		if( xQueueSendStatus != pdPASS )
-		{
-			printf("Erreur: Impossible d'envoyer la valeur du timer dans la queue.\r\n");
-		}
-		else
-		{
-			printf("APRES GIVE (Queue) - Valeur du timer envoyée: %lu\r\n", xTimeNow);
-		}
-
-		vTaskDelay(pdMS_TO_TICKS(100));
-	}
-}
-
-void task_take(void *unused)
-{
-	TickType_t uxReceivedValue;
-	BaseType_t xQueueReceiveStatus;
-
-	for(;;)
-	{
-		printf("AVANT TAKE (Queue)\r\n");
-
-		// Recevoir une valeur de la queue (attente indéfinie)
-		xQueueReceiveStatus = xQueueReceive(xTimerQueue, &uxReceivedValue, portMAX_DELAY);
-
-		if( xQueueReceiveStatus == pdPASS )
-		{
-			printf("APRES TAKE (Queue) - Valeur du timer reçue: %lu\r\n", uxReceivedValue);
-		}
-		else
-		{
-			printf("APRES TAKE (Queue) - Erreur lors de la réception depuis la queue.\r\n");
-		}
-	}
-}
+#define TASK_GIVE_PRIORITY 2
+#define TASK_TAKE_PRIORITY 1
+```
+AVANT GIVE : 0
+                AVANT TAKE
+                        APRES TAKE : 0
+                AVANT TAKE
+        APRES GIVE : 0
+AVANT GIVE : 102
+                        APRES TAKE : 102
+                AVANT TAKE
+        APRES GIVE : 102
+AVANT GIVE : 305
+                        APRES TAKE : 305
+                AVANT TAKE
+        APRES GIVE : 305
+AVANT GIVE : 608
+                        APRES TAKE : 608
+                AVANT TAKE
+        APRES GIVE : 608
+AVANT GIVE : 1011
+                        APRES TAKE : 1011
+                AVANT TAKE
+        APRES GIVE : 1011
+AVANT GIVE : 1514
+                        APRES TAKE : 1514
+                AVANT TAKE
+        APRES GIVE : 1514
+AVANT GIVE : 2117
+                        APRES TAKE : 2117
+                AVANT TAKE
+        APRES GIVE : 2117
+AVANT GIVE : 2820
+                        APRES TAKE : 2820
+                AVANT TAKE
+        APRES GIVE : 2820
+AVANT GIVE : 3623
+                        APRES TAKE : 3623
+                AVANT TAKE
+        APRES GIVE : 3623
+AVANT GIVE : 4526
+                        APRES TAKE : 4526
+                AVANT TAKE
+        APRES GIVE : 4526
+AVANT GIVE : 5529
+                        APRES TAKE : 5529
+                AVANT TAKE
+AVANT GIVE : 0
 ```
 ### 1.5 Réentrance et exclusion mutuelle
 
