@@ -393,8 +393,10 @@ void task_take(void *unused)
 ```
 
 Résultats :
+```
 #define TASK_GIVE_PRIORITY 1
 #define TASK_TAKE_PRIORITY 2
+```
 ```
 AVANT GIVE : 1
                         APRES TAKE : 1
@@ -439,8 +441,10 @@ AVANT GIVE : 4554
 AVANT GIVE : 1
 ```
 
+```
 #define TASK_GIVE_PRIORITY 2
 #define TASK_TAKE_PRIORITY 1
+```
 ```
 AVANT GIVE : 0
                 AVANT TAKE
