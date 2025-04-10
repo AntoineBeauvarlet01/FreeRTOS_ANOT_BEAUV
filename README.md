@@ -497,11 +497,15 @@ AVANT GIVE : 0
 9. Recopiez le code ci-dessous – au bon endroit – dans votre code.
 
 10. Observez attentivement la sortie dans la console. Expliquez d’où vient le problème.
-> La sortie dans la console, on observe :
+```
+La sortie dans la console, on observe :
+
 Je suis Tache 1 et je m'endors pour 2 ticks
 Je suis Tache 2 et je m'endors pour 2 ticks
-> Le bon nom de tâche est affiché, mais c'est le délai de la tâche 2 qui est affiché à pour les deux tâches
-> Ce "problème" est lié à la priorité des tâches : la tâche 2 est + prioritaire que la 1, donc elle intercèpte son fonctionnement.
+
+Le bon nom de tâche est affiché, mais c'est le délai de la tâche 2 qui est affiché pour les deux tâches.
+Ce "problème" est lié à la priorité des tâches : la tâche 2 est + prioritaire que la 1, donc elle intercèpte son fonctionnement.
+```
 
 11. Proposez une solution en utilisant un sémaphore Mutex.
 ```
