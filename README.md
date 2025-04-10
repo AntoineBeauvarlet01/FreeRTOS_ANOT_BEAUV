@@ -529,7 +529,7 @@ void task_bug(void * pvParameters)
 // Dans le main, on ajoute cette ligne :
 semaphore_bug = xSemaphoreCreateMutex();
 ```
-
+# ON EST LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 ## 2 On va essayer de jouer avec le Shell
 # **Attention !**
 > Pour ce TP, il y a une petite subtilité. 
