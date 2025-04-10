@@ -548,17 +548,19 @@ void app_main(void)
 ```
 
 ## 2 On va essayer de jouer avec le Shell
-# Attention !
-> Pour ce TP, il y a une petite subtilité. 
-> Seules les interruptions dont la priorité est supérieure à la valeur 
-> - `configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY` (définie à `5` par défaut)
-> peuvent appeler des primitives de FreeRTOS. 
+> [!WARNING]
+# **Attention !**
+> <span style="color:green">  </span>
+> <span style="color:green">Pour ce TP, il y a une petite subtilité.       </span>
+> <span style="color:green">Seules les interruptions dont la priorité est supérieure à la valeur </span>
+> - <span style="color:white">configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY</span><span style="color:green"> (définie à `5` par défaut)  </span>
 > 
-> On peut :
-> - soit modifier ce seuil, 
-> 
-> - soit modifier la priorité de l’interruption de l’USART1 (0 par défaut). 
->     Dans l’exemple montré en Figure 1, la priorité de l’interruption de l’USART1 est fixée à 5.
+> <span style="color:green">peuvent appeler des primitives de FreeRTOS.   </span>
+> - <span style="color:green">soit modifier ce seuil,   </span>
+> - <span style="color:green">soit modifier la priorité de l’interruption de l’USART1 (0 par défaut).   </span>
+> <span style="color:green">Dans l’exemple montré en Figure 1, la priorité de l’interruption de l’USART1 est fixée à 5.  </span>
+> <span style="color:green">  </span>
+
 #
 1. Terminer l’intégration du shell commencé en TD. Pour mémoire, les questions
 du TD sont rappelées ci-dessous :
