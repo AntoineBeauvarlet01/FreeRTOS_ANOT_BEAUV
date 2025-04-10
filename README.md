@@ -250,7 +250,60 @@ On est avant le GIVE (1), on attend la fin du TAKE, on se retrouve après le TAK
 
 7. Modifiez le code pour obtenir le même fonctionnement en utilisant des task notifications à la place des sémaphores.
 ```
-`...`
+#include <stdio.h>
+#include "FreeRTOS.h"
+#include "task.h"
+#include "semphr.h"
+
+// Handles des tâches
+TaskHandle_t xTaskGiveHandle = NULL;
+TaskHandle_t xTaskTakeHandle = NULL;
+
+// Déclaration des fonctions des tâches
+void task_give(void *unused);
+void task_take(void *unused);
+
+void app_main(void) {
+    // Création des tâches
+    xTaskCreate(task_give, "TaskGive", 128, NULL, 1, &xTaskGiveHandle);
+    xTaskCreate(task_take, "TaskTake", 128, NULL, 1, &xTaskTakeHandle);
+
+    // Démarrage du scheduler FreeRTOS
+    vTaskStartScheduler();
+}
+
+void task_give(void *unused)
+{
+	for(;;)
+	{
+		printf("AVANT GIVE (Notification)\r\n");
+		// Envoyer une notification à la tâche de réception
+		xTaskNotifyGive(xTaskTakeHandle);
+		vTaskDelay(pdMS_TO_TICKS(100));
+		printf("APRES GIVE (Notification)\r\n");
+	}
+}
+
+void task_take(void *unused)
+{
+	uint32_t ulNotificationValue;
+
+	for(;;)
+	{
+		printf("AVANT TAKE (Notification)\r\n");
+		// Attendre une notification de la tâche d'émission
+		ulNotificationValue = ulTaskNotifyTake(pdTRUE, HAL_MAX_DELAY);
+		if( ulNotificationValue > 0 )
+		{
+			printf("APRES TAKE (Notification) - Notification reçue\r\n");
+		}
+		else
+		{
+			// Timeout ou erreur (ici HAL_MAX_DELAY ne provoque pas de timeout)
+			printf("APRES TAKE (Notification) - Erreur lors de la réception de la notification\r\n");
+		}
+	}
+}
 ```
 ### 1.4 Queues
 8. Modifiez `TaskGive` pour envoyer dans une queue la valeur du timer. 
