@@ -548,7 +548,7 @@ void app_main(void)
 ```
 
 ## 2 On va essayer de jouer avec le Shell
-# ** Attention !**
+# **Attention !**
 > Pour ce TP, il y a une petite subtilité. 
 > Seules les interruptions dont la priorité est supérieure à la valeur 
 > - `configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY` (définie à `5` par défaut)
