@@ -308,11 +308,155 @@ void task_take(void *unused)
 ### 1.4 Queues
 8. Modifiez `TaskGive` pour envoyer dans une queue la valeur du timer. 
 ```
-`...`
+#include <stdio.h>
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "timers.h"
+
+// Handles des tâches et de la queue
+TaskHandle_t xTaskGiveHandle = NULL;
+TaskHandle_t xTaskTakeHandle = NULL;
+QueueHandle_t xTimerQueue = NULL;
+
+// Déclaration des fonctions des tâches
+void task_give(void *unused);
+void task_take(void *unused);
+
+void app_main(void) {
+    // Création de la queue pour contenir les valeurs du timer
+    xTimerQueue = xQueueCreate(5, sizeof(TickType_t)); // Taille de la queue = 5, chaque élément est un TickType_t
+
+    // Création des tâches
+    xTaskCreate(task_give, "TaskGive", 128, NULL, 1, &xTaskGiveHandle);
+    xTaskCreate(task_take, "TaskTake", 128, NULL, 1, &xTaskTakeHandle);
+
+    // Démarrage du scheduler FreeRTOS
+    vTaskStartScheduler();
+}
+
+void task_give(void *unused)
+{
+	for(;;)
+	{
+		printf("AVANT GIVE (Queue)\r\n");
+		TickType_t xTimeNow = xTaskGetTickCount(); // Récupérer la valeur actuelle du timer
+		BaseType_t xQueueSendStatus;
+
+		// Envoyer la valeur du timer dans la queue
+		xQueueSendStatus = xQueueSendToBack(xTimerQueue, &xTimeNow, pdMS_TO_TICKS(10)); // Délai de 10ms si la queue est pleine
+
+		if( xQueueSendStatus != pdPASS )
+		{
+			printf("Erreur: Impossible d'envoyer la valeur du timer dans la queue.\r\n");
+		}
+		else
+		{
+			printf("APRES GIVE (Queue) - Valeur du timer envoyée: %lu\r\n", xTimeNow);
+		}
+
+		vTaskDelay(pdMS_TO_TICKS(100));
+	}
+}
+
+void task_take(void *unused)
+{
+	TickType_t uxReceivedValue;
+	BaseType_t xQueueReceiveStatus;
+
+	for(;;)
+	{
+		printf("AVANT TAKE (Queue)\r\n");
+
+		// Recevoir une valeur de la queue (attente indéfinie)
+		xQueueReceiveStatus = xQueueReceive(xTimerQueue, &uxReceivedValue, portMAX_DELAY);
+
+		if( xQueueReceiveStatus == pdPASS )
+		{
+			printf("APRES TAKE (Queue) - Valeur du timer reçue: %lu\r\n", uxReceivedValue);
+		}
+		else
+		{
+			printf("APRES TAKE (Queue) - Erreur lors de la réception depuis la queue.\r\n");
+		}
+	}
+}
 ```
 9.  Modifiez `TaskTake` pour réceptionner et afficher cette valeur.
 ```
-`...`
+#include <stdio.h>
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "timers.h"
+
+// Handles des tâches et de la queue
+TaskHandle_t xTaskGiveHandle = NULL;
+TaskHandle_t xTaskTakeHandle = NULL;
+QueueHandle_t xTimerQueue = NULL;
+
+// Déclaration des fonctions des tâches
+void task_give(void *unused);
+void task_take(void *unused);
+
+void app_main(void) {
+    // Création de la queue pour contenir les valeurs du timer
+    xTimerQueue = xQueueCreate(5, sizeof(TickType_t)); // Taille de la queue = 5, chaque élément est un TickType_t
+
+    // Création des tâches
+    xTaskCreate(task_give, "TaskGive", 128, NULL, 1, &xTaskGiveHandle);
+    xTaskCreate(task_take, "TaskTake", 128, NULL, 1, &xTaskTakeHandle);
+
+    // Démarrage du scheduler FreeRTOS
+    vTaskStartScheduler();
+}
+
+void task_give(void *unused)
+{
+	for(;;)
+	{
+		printf("AVANT GIVE (Queue)\r\n");
+		TickType_t xTimeNow = xTaskGetTickCount(); // Récupérer la valeur actuelle du timer
+		BaseType_t xQueueSendStatus;
+
+		// Envoyer la valeur du timer dans la queue
+		xQueueSendStatus = xQueueSendToBack(xTimerQueue, &xTimeNow, pdMS_TO_TICKS(10)); // Délai de 10ms si la queue est pleine
+
+		if( xQueueSendStatus != pdPASS )
+		{
+			printf("Erreur: Impossible d'envoyer la valeur du timer dans la queue.\r\n");
+		}
+		else
+		{
+			printf("APRES GIVE (Queue) - Valeur du timer envoyée: %lu\r\n", xTimeNow);
+		}
+
+		vTaskDelay(pdMS_TO_TICKS(100));
+	}
+}
+
+void task_take(void *unused)
+{
+	TickType_t uxReceivedValue;
+	BaseType_t xQueueReceiveStatus;
+
+	for(;;)
+	{
+		printf("AVANT TAKE (Queue)\r\n");
+
+		// Recevoir une valeur de la queue (attente indéfinie)
+		xQueueReceiveStatus = xQueueReceive(xTimerQueue, &uxReceivedValue, portMAX_DELAY);
+
+		if( xQueueReceiveStatus == pdPASS )
+		{
+			printf("APRES TAKE (Queue) - Valeur du timer reçue: %lu\r\n", uxReceivedValue);
+		}
+		else
+		{
+			printf("APRES TAKE (Queue) - Erreur lors de la réception depuis la queue.\r\n");
+		}
+	}
+}
 ```
 ### 1.5 Réentrance et exclusion mutuelle
 
