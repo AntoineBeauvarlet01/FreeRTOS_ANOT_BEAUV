@@ -495,39 +495,13 @@ AVANT GIVE : 0
 ### 1.5 Réentrance et exclusion mutuelle
 
 9. Recopiez le code ci-dessous – au bon endroit – dans votre code.
-```
-#define STACK_SIZE 256
-#define TASK1_PRIORITY 1
-#define TASK2_PRIORITY 2
-#define TASK1_DELAY 1
-#define TASK2_DELAY 2
-```
-
-```
-ret = xTaskCreate(task_bug, "Tache 1", STACK_SIZE, \
-(void *) TASK1_DELAY, TASK1_PRIORITY, NULL);
-configASSERT(pdPASS == ret);
-ret = xTaskCreate(task_bug, "Tache 2", STACK_SIZE, \
-(void *) TASK2_DELAY, TASK2_PRIORITY, NULL);
-configASSERT(pdPASS == ret);
-```
-
-```
-void task_bug(void * pvParameters)
-{
-    int delay = (int) pvParameters;
-    for(;;)
-        {
-        printf("Je suis %s et je m'endors pour \%d ticks\r\n", pcTaskGetName(NULL), delay);
-        vTaskDelay(delay);
-        }
-}
-
-```
 
 10. Observez attentivement la sortie dans la console. Expliquez d’où vient le problème.
-
-    >En observant attentivement la sortie dans la console, on remarquere que les deux tâches (Tache 1 et Tache 2) affichent le même nom : "Tache 2".
+> La sortie dans la console, on observe :
+Je suis Tache 1 et je m'endors pour 2 ticks
+Je suis Tache 2 et je m'endors pour 2 ticks
+> Le bon nom de tâche est affiché, mais c'est le délai de la tâche 2 qui est affiché à pour les deux tâches
+> Ce "problème" est lié à la priorité des tâches : la tâche 2 est + prioritaire que la 1, donc elle intercèpte son fonctionnement.
 
 11. Proposez une solution en utilisant un sémaphore Mutex.
 ```
