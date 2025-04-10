@@ -245,7 +245,7 @@ AVANT TAKE
 APRES GIVE
 ```
 On est avant le GIVE (1), on attend la fin du TAKE, on se retrouve après le TAKE (2). On reboucle donc on est avant le TAKE (3). On a TAKE donc on peut GIVE et on se retrouve après GIVE (4).
-# On en est lààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààà
+
 ### 1.3 Notification
 
 7. Modifiez le code pour obtenir le même fonctionnement en utilisant des task notifications à la place des sémaphores.
@@ -563,7 +563,7 @@ void app_main(void)
 1. Terminer l’intégration du shell commencé en TD. Pour mémoire, les questions
 du TD sont rappelées ci-dessous :
    * Créer le projet, compiler et observer. Appeler la fonction depuis le shell.
-   Les fichiers sont disponibles sur moodle, dans la section TD.
+   * Les fichiers sont disponibles sur moodle, dans la section TD.
    * Modifier la fonction pour faire apparaître la liste des arguments.
    * Expliquer les mécanismes qui mènent à l’exécution de la fonction.
    * Quel est le problème ?
