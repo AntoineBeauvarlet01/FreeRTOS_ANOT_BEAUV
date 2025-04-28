@@ -161,8 +161,8 @@ void task_take(void *unused)
 		printf("\t\tAVANT TAKE\r\n");
 		if (xSemaphoreTake(task_semaphore, 1000) == pdFALSE) // Si le sémaphore n'est pas acquis au bout d'une seconde
 		{
-			NVIC_SystemReset(); // RESET
 			printf("----- RESET\r\n");
+			NVIC_SystemReset(); // RESET
 		}
 		printf("\t\t\tAPRES TAKE\r\n");
 	}
@@ -301,7 +301,7 @@ int main(void)
 	MX_TIM3_Init();
 	MX_TIM5_Init();
 	MX_TIM8_Init();
-	MX_TIM12_Init();
+	MX_TIM12_Init();//
 	MX_USART1_UART_Init();
 	MX_USART6_UART_Init();
 	MX_FATFS_Init();
@@ -323,8 +323,8 @@ int main(void)
 	//xTaskCreate(task_give, "Task GIVE", TASK_GIVE_STACK_DEPTH, NULL, TASK_GIVE_PRIORITY, NULL);
 	//xTaskCreate(task_take, "Task TAKE", TASK_TAKE_STACK_DEPTH, NULL, TASK_TAKE_PRIORITY, NULL);
 
-	//BaseType_t returned_value;
-	//returned_value = xTaskCreate(task_led, "Task LED", TASK_LED_STACK_DEPTH, NULL, TASK_LED_PRIORITY, NULL);
+	BaseType_t returned_value;
+	returned_value = xTaskCreate(task_led, "Task LED", TASK_LED_STACK_DEPTH, NULL, TASK_LED_PRIORITY, NULL);
 	//if (returned_value != pdPASS) // pas assez de mémoire pour allouer la tâche
 	//{
 	//	printf("Could not allocate Task LED\r\n");
