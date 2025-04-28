@@ -1,5 +1,3 @@
-https://github.com/lfiack/rtos_td_shell.git
-
 # FreeRTOS_ANOT_BEAUV
 TP 3DN-Noyau temps réel
 ![alt text](image.png)
