@@ -323,8 +323,8 @@ int main(void)
 	//xTaskCreate(task_give, "Task GIVE", TASK_GIVE_STACK_DEPTH, NULL, TASK_GIVE_PRIORITY, NULL);
 	//xTaskCreate(task_take, "Task TAKE", TASK_TAKE_STACK_DEPTH, NULL, TASK_TAKE_PRIORITY, NULL);
 
-	BaseType_t returned_value;
-	returned_value = xTaskCreate(task_led, "Task LED", TASK_LED_STACK_DEPTH, NULL, TASK_LED_PRIORITY, NULL);
+	//BaseType_t returned_value;
+	//returned_value = xTaskCreate(task_led, "Task LED", TASK_LED_STACK_DEPTH, NULL, TASK_LED_PRIORITY, NULL);
 	//if (returned_value != pdPASS) // pas assez de mémoire pour allouer la tâche
 	//{
 	//	printf("Could not allocate Task LED\r\n");
