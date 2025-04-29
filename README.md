@@ -644,13 +644,6 @@ int main(void)
 		Error_Handler();
 	}
 
-	returned_value = xTaskCreate(task_spam, "Task SPAM", TASK_SPAM_STACK_DEPTH, NULL, TASK_SPAM_PRIORITY, NULL);
-	if (returned_value != pdPASS) // pas assez de mémoire pour allouer la tâche
-	{
-		printf("Could not allocate Task SPAM\r\n");
-		Error_Handler();
-	}
-
 	returned_value = xTaskCreate(task_shell_run, "Task Shell Run", TASK_SHELL_RUN_STACK_DEPTH, (void *)&h_shell, TASK_SHELL_RUN_PRIORITY, NULL);
 	if (returned_value != pdPASS) // pas assez de mémoire pour allouer la tâche
 	{
