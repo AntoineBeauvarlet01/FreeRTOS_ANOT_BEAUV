@@ -750,10 +750,10 @@ int main(void)
 *Les fonctions finissant par Create font de l’allocation dynamique et peuvent échouer s’il n’y a plus assez de mémoire.*
 
 1. Quel est le nom de la zone réservée à l’allocation dynamique ?
-    > Il sagit du `...`
+    > Il sagit du `TAS`
 
 2. Est-ce géré par FreeRTOS ou la HAL ?
-    > C'est `FreeRTOS` / `HAL` qui le gère
+    > C'est `FreeRTOS` qui le gère
 
 3. Si ce n’est déjà fait, ajoutez de la gestion d’erreur sur toutes les fonctions
 pouvant générer des erreurs. En cas d’erreur, affichez un message et appelez la fonction 
