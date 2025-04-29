@@ -759,6 +759,7 @@ int main(void)
 pouvant générer des erreurs. En cas d’erreur, affichez un message et appelez la fonction 
 * Error_Handler();
   
+# Nous en sommes Lààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààà
 4. Notez la mémoire RAM et Flash utilisée, comme dans l’exemple ci-dessous
    ![alt text](image-1.png)
 
