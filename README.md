@@ -670,7 +670,7 @@ int main(void)
 4. Écrire une fonction `spam()`, semblable à la fonction `led()` qui affiche du texte dans la liaison série au lieu de faire clignoter les LED. 
    On peut ajouter comme argument le message à afficher et le nombre de valeurs à afficher. 
 
-    > ![image](https://github.com/user-attachments/assets/d63b248b-534c-4783-aed5-d9f0ae1d55ea)
+![image](https://github.com/user-attachments/assets/d63b248b-534c-4783-aed5-d9f0ae1d55ea)
 
 ```
 void task_spam(void *unused)
