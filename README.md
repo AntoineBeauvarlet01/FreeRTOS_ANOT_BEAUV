@@ -635,7 +635,6 @@ int main(void)
 	shell_init(&h_shell);
 	shell_add(&h_shell, 'f', fonction, "Une fonction inutile");
 	shell_add(&h_shell, 'l', led, "Faire clignoter une LED");
-	shell_add(&h_shell, 's', spam, "Envoyer un message");
 
 	BaseType_t returned_value;
 	returned_value = xTaskCreate(task_led, "Task LED", TASK_LED_STACK_DEPTH, NULL, TASK_LED_PRIORITY, NULL);
