@@ -565,7 +565,134 @@ du TD sont rappelées ci-dessous :
     
     Le clignotement de la LED s’effectue dans une tâche. Il faut donc trouver un moyen de faire communiquer *proprement* la fonction led avec la tâche de clignotement.
 ```
-`...`
+void task_led(void *unused)
+{
+	TickType_t delay;
+	for(;;)
+	{
+		if (xQueueReceive(xQueueLED, &delay, portMAX_DELAY) == pdTRUE)
+		{
+			if (delay > 0)
+			{
+				for (;;)
+				{
+					HAL_GPIO_TogglePin(GPIOI, GPIO_PIN_1);
+					vTaskDelay((TickType_t) delay);
+					if (xQueueReceive(xQueueLED, &delay, 0) == pdTRUE)
+					{
+						if (delay == 0)
+						{
+							HAL_GPIO_WritePin(GPIOI, GPIO_PIN_1, GPIO_PIN_RESET); // LED OFF
+							break;
+						}
+					}
+				}
+			}
+			else
+			{
+				HAL_GPIO_WritePin(GPIOI, GPIO_PIN_1, GPIO_PIN_RESET); // LED OFF
+			}
+		}
+	}
+}
+
+void led(h_shell_t * h_shell, int argc, char ** argv)
+{
+	if (argc > 1)
+	{
+		TickType_t delay = atoi(argv[1]);
+		xQueueSend(xQueueLED, &delay, portMAX_DELAY);
+	}
+	else
+	{
+		printf("Veuillez renseigner un delai (en ms)\r\n");
+	}
+}
+
+void task_shell_run(void *parameters)
+{
+	shell_run(&h_shell);
+}
+
+int main(void)
+{
+	/* USER CODE BEGIN 1 */
+
+	/* USER CODE END 1 */
+
+	/* MCU Configuration--------------------------------------------------------*/
+
+	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+	HAL_Init();
+
+	/* USER CODE BEGIN Init */
+
+	/* USER CODE END Init */
+
+	/* Configure the system clock */
+	SystemClock_Config();
+
+	/* USER CODE BEGIN SysInit */
+
+	/* USER CODE END SysInit */
+
+	/* Initialize all configured peripherals */
+	MX_GPIO_Init();
+	MX_USART1_UART_Init();
+	/* USER CODE BEGIN 2 */
+	xQueueLED = xQueueCreate(10, sizeof(TickType_t));
+	xQueueSPAM = xQueueCreate(10, sizeof(char *));
+
+	h_shell.drv.receive = drv_uart1_receive;
+	h_shell.drv.transmit = drv_uart1_transmit;
+
+	shell_init(&h_shell);
+	shell_add(&h_shell, 'f', fonction, "Une fonction inutile");
+	shell_add(&h_shell, 'l', led, "Faire clignoter une LED");
+	shell_add(&h_shell, 's', spam, "Envoyer un message");
+
+	BaseType_t returned_value;
+	returned_value = xTaskCreate(task_led, "Task LED", TASK_LED_STACK_DEPTH, NULL, TASK_LED_PRIORITY, NULL);
+	if (returned_value != pdPASS) // pas assez de mémoire pour allouer la tâche
+	{
+		printf("Could not allocate Task LED\r\n");
+		Error_Handler();
+	}
+
+	returned_value = xTaskCreate(task_spam, "Task SPAM", TASK_SPAM_STACK_DEPTH, NULL, TASK_SPAM_PRIORITY, NULL);
+	if (returned_value != pdPASS) // pas assez de mémoire pour allouer la tâche
+	{
+		printf("Could not allocate Task SPAM\r\n");
+		Error_Handler();
+	}
+
+	returned_value = xTaskCreate(task_shell_run, "Task Shell Run", TASK_SHELL_RUN_STACK_DEPTH, (void *)&h_shell, TASK_SHELL_RUN_PRIORITY, NULL);
+	if (returned_value != pdPASS) // pas assez de mémoire pour allouer la tâche
+	{
+		printf("Could not allocate Task Shell Run\r\n");
+		Error_Handler();
+	}
+
+	vTaskStartScheduler(); // Appelle l'OS (avec une fonction freertos)
+	/* USER CODE END 2 */
+
+	/* Call init function for freertos objects (in freertos.c) */
+	MX_FREERTOS_Init();
+
+	/* Start scheduler */
+	osKernelStart();
+
+	/* We should never get here as control is now taken by the scheduler */
+	/* Infinite loop */
+	/* USER CODE BEGIN WHILE */
+	while (1)
+	{
+		/* USER CODE END WHILE */
+
+		/* USER CODE BEGIN 3 */
+	}
+	/* USER CODE END 3 */
+}
 ```
 
 4. Écrire une fonction `spam()`, semblable à la fonction `led()` qui affiche du texte dans la liaison série au lieu de faire clignoter les LED. 
