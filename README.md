@@ -553,7 +553,10 @@ du TD sont rappelées ci-dessous :
 
 2. Que se passe-t-il si l’on ne respecte pas les priorités décrites précédemment ?
 
-    > Si on ne respecte pas les priorités décrites précédemment, `...`
+    > Si on ne respecte pas les priorités décrites précédemment, il y a plusieurs riques :
+    > Comportement imprévisible et erreurs difficiles à déboguer : Des appels de fonctions FreeRTOS depuis un contexte d'interruption non autorisé peuvent corrompre la mémoire partagée entre les tâches ou l'état de l'ordonnanceur de manière subtile. Cela peut se manifester par des comportements erratiques et intermittents du système, rendant le débogage extrêmement difficile car la cause première n'est pas immédiatement évidente.
+    > Perte de données ou corruption : Si l'interruption de l'USART1 gère la réception ou la transmission de données importantes, une mauvaise gestion des priorités pourrait entraîner des pertes de données si l'interruption est retardée ou si elle interfère incorrectement avec les opérations de FreeRTOS. De même, une corruption des données reçues ou transmises pourrait survenir si la gestion de l'interruption est compromise.
+    > Instabilité du système : Dans des scénarios plus complexes, des violations de priorité peuvent introduire des conditions de concurrence critiques difficiles à prévoir et à reproduire. Cela peut se traduire par une instabilité générale du système, avec des plantages ou des comportements anormaux survenant de manière aléatoire.
 
 3. Écrire une fonction `led()`, appelable depuis le shell, permettant de faire clignoter la LED (PI1 sur la carte). 
    
