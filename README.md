@@ -627,7 +627,6 @@ int main(void)
 	MX_USART1_UART_Init();
 
 	xQueueLED = xQueueCreate(10, sizeof(TickType_t));
-	xQueueSPAM = xQueueCreate(10, sizeof(char *));
 
 	h_shell.drv.receive = drv_uart1_receive;
 	h_shell.drv.transmit = drv_uart1_transmit;
