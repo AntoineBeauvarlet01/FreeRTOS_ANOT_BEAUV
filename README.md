@@ -129,7 +129,7 @@ void task_led(void *unused)
    
 * Quel est le rôle de la macro portTICK_PERIOD_MS ?
 
-    > Quel est le rôle de  sert à `...`
+    > La macro portTICK_PERIOD_MS dans FreeRTOS permet de définir la durée d'un tick en ms. 
 
 
 ### 1.2 Sémaphores pour la synchronisation
@@ -195,8 +195,8 @@ void task_take(void *unused)
 		printf("\t\tAVANT TAKE\r\n");
 		if (xSemaphoreTake(task_semaphore, 1000) == pdFALSE) // Si le sémaphore n'est pas acquis au bout d'une seconde
 		{
-			NVIC_SystemReset(); // RESET
 			printf("----- RESET\r\n");
+			NVIC_SystemReset(); // RESET
 		}
 		printf("\t\t\tAPRES TAKE\r\n");
 	}
@@ -529,10 +529,8 @@ void task_bug(void * pvParameters)
 // Dans le main, on ajoute cette ligne :
 semaphore_bug = xSemaphoreCreateMutex();
 ```
-# ON EST TOUJOURS LAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 ## 2 On va essayer de jouer avec le Shell
-La led clignote avec le shell mais on ne peut plus exécuter d'autres fonctions
-# **Attention !**
+### **Attention !**
 > Pour ce TP, il y a une petite subtilité. 
 > Seules les interruptions dont la priorité est supérieure à la valeur 
 > - `configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY` (définie à `5` par défaut)
