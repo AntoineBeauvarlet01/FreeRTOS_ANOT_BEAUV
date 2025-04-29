@@ -670,7 +670,75 @@ int main(void)
 4. Écrire une fonction `spam()`, semblable à la fonction `led()` qui affiche du texte dans la liaison série au lieu de faire clignoter les LED. 
    On peut ajouter comme argument le message à afficher et le nombre de valeurs à afficher. 
 
-    > *Ce genre de fonction peut être utile lorsque l’on travaille avec un capteur.*
+    > ![image](https://github.com/user-attachments/assets/d63b248b-534c-4783-aed5-d9f0ae1d55ea)
+
+```
+void task_spam(void *unused)
+{
+	char *message;
+	for(;;)
+	{
+		if (xQueueReceive(xQueueSPAM, &message, portMAX_DELAY) == pdTRUE)
+		{
+			printf("%s\r\n", message);
+		}
+	}
+}
+
+
+void spam(h_shell_t * h_shell, int argc, char ** argv)
+{
+	if (argc > 2)
+	{
+		char *message = argv[1];
+		int16_t iter = atoi(argv[2]);
+		printf("\n\r");
+		for (int i = 0; i < iter; i++)
+		{
+			xQueueSend(xQueueSPAM, &message, portMAX_DELAY);
+		}
+	}
+	else
+	{
+		printf("Veuillez renseigner un message et un nombre d'iterations\r\n");
+	}
+}
+
+void task_shell_run(void *parameters)
+{
+	shell_run(&h_shell);
+}
+
+int main(void)
+{
+	xQueueSPAM = xQueueCreate(10, sizeof(char *));
+
+	h_shell.drv.receive = drv_uart1_receive;
+	h_shell.drv.transmit = drv_uart1_transmit;
+
+	shell_init(&h_shell);
+	shell_add(&h_shell, 'f', fonction, "Une fonction inutile");
+	shell_add(&h_shell, 's', spam, "Envoyer des messages");
+
+	BaseType_t returned_value;
+	returned_value = xTaskCreate(task_spam, "Task SPAM", TASK_SPAM_STACK_DEPTH, NULL, TASK_SPAM_PRIORITY, NULL);
+	if (returned_value != pdPASS) // pas assez de mémoire pour allouer la tâche
+	{
+		printf("Could not allocate Task LED\r\n");
+		Error_Handler();
+	}
+
+	returned_value = xTaskCreate(task_shell_run, "Task Shell Run", TASK_SHELL_RUN_STACK_DEPTH, (void *)&h_shell, TASK_SHELL_RUN_PRIORITY, NULL);
+	if (returned_value != pdPASS) // pas assez de mémoire pour allouer la tâche
+	{
+		printf("Could not allocate Task Shell Run\r\n");
+		Error_Handler();
+	}
+
+	vTaskStartScheduler(); // Appelle l'OS (avec une fonction freertos)
+}
+```
+
 
 
 ## 3 Debug, gestion d’erreur et statistiques
