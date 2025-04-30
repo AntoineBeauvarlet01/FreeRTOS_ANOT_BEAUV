@@ -739,6 +739,8 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 > En cliquant sur `Toggle Stack Checking`, il est indiqué dans la colonne `Min Free Stack` la taille minimum de la pile pour chaque tâche (ici > 256, en effet elle est définie à 250).
 ![image](https://github.com/user-attachments/assets/d220b2d8-dee6-4148-974e-427ad5aea965)
 
+# ON EST LAAAAAAAA
+
 7. Pour afficher le taux d’utilisation du CPU, il faut écrire les deux fonctions suivantes :
 ```
 void configureTimerForRunTimeStats(void);
