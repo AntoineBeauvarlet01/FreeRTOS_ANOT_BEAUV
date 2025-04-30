@@ -750,7 +750,7 @@ int main(void)
 *Les fonctions finissant par Create font de l’allocation dynamique et peuvent échouer s’il n’y a plus assez de mémoire.*
 
 1. Quel est le nom de la zone réservée à l’allocation dynamique ?
-    > Il sagit du `TAS`
+    > Il s'agit du `TAS`
 
 2. Est-ce géré par FreeRTOS ou la HAL ?
     > C'est `FreeRTOS` qui le gère
@@ -759,32 +759,24 @@ int main(void)
 pouvant générer des erreurs. En cas d’erreur, affichez un message et appelez la fonction 
 * Error_Handler();
   
-# Nous en sommes Lààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààà
+On fait évoluer la taille du tas pour voir l'évolution de la RAM,
+De base, le tas est compris dans les 5.92 % de la taille de la RAM. Pour notre TP, on fait x10 sur la taille du tas.
 
-on fait évoluer la taille du tas pour voir l'évolution de la RAM,
-De base, le tas est compris dans les 5.82 % d'utilisation, pour notre tp, on vient faire x10 sur la taille du tas.
-
-
-4. Notez la mémoire RAM et Flash utilisée, comme dans l’exemple ci-dessous
-   ![alt text](image-1.png)
+4. Notez la mémoire RAM et Flash utilisée.
+```
+Voici l'état de notre mémoire : 
+text	   data	    bss
+31368	   116	  19276
+```
+   ![image](https://github.com/user-attachments/assets/73a4f9fe-49a9-45af-86fc-3677314e49f8)
 
 5. Créez des tâches bidons jusqu’à avoir une erreur.
-   > screen de l'erreur
-
-6. Notez la nouvelle utilisation mémoire.
-   > la nouvelle utilisation mémoire `...`
-
-7. Dans CubeMX, augmentez la taille du tas `(TOTAL_HEAP_SIZE)`. Générez le code, compilez et testez.
 ```
-`...`
+En créant des tâches bidons, voici l'état de la mémoire. Je n'ai pas obtenue d'erreur. La taille du texte a légèrement augmenté, ce qui correspond au code supplémentaire qui a permis de créer les tâches.
+text	   data	    bss
+32652	   116	  19276
 ```
-8. Notez la nouvelle utilisation mémoire. Expliquez les trois relevés.
-
-   > Le relevé n°1 correspond à `...`
-
-   > Le relevé n°2 correspond à `...`
-
-   > Le relevé n°3 correspond à `...`
+   ![image](https://github.com/user-attachments/assets/73a4f9fe-49a9-45af-86fc-3677314e49f8)
 
 ### 3.2 Gestion des piles
 *Dans cette partie du TP, vous allez utiliser un hook `(une fonction appelée par l’OS, dont on peut écrire le contenu)` pour détecter les dépassements de pile `(Stack Overflow en anglais)`.*
