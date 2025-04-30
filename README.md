@@ -724,30 +724,21 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 
 2. Générez le code, compilez et lancez en mode debug
 
-3. Pour ajouter les statistiques, cliquez sur `Window` > `Show View` > `FreeRTOS` > `FreeRTOS Task List`. 
-
-*Vous pouvez aussi afficher les queues et les sémaphores.*
-
+3. Pour ajouter les statistiques, cliquez sur `Window` > `Show View` > `FreeRTOS` > `FreeRTOS Task List`. *Vous pouvez aussi afficher les queues et les sémaphores.*
 
 4. Lancez le programme puis mettez-le en pause pour voir les statistiques.
-    > screen des statistiques 
-
+> J'ai lancé le programme en mode Debug, appelé la fonction SPAM dans le shell et mis en pause lors de son exécution. On voit bien sur le screen que la tâche SPAM est entrain de s'exécuter.
+![image](https://github.com/user-attachments/assets/154719d3-39bf-44e7-ab80-066db0adf9a3)
 
 5. Cherchez dans CubeMX comment faire pour afficher l’utilisation de la pile.
 En mode debug, cliquez sur `Toggle Stack Checking` (dans l’onglet `FreeRTOSTask List` en haut à droite).
 
 
 6. Pour afficher le taux d’utilisation du CPU, il faut écrire les deux fonctions suivantes :
-# 1
 ```
 void configureTimerForRunTimeStats(void);
-```
-#
-# 2
-```
 unsigned long getRunTimeCounterValue(void);
 ```
-#
 * La première fonction doit démarrer un timer
 * la seconde permet de récupérer la valeur du timer. 
 
