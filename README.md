@@ -1,7 +1,7 @@
 # FreeRTOS_ANOT_BEAUV
 TP 3DN-Noyau temps réel
 ![alt text](image.png)
-Commande à ajouter dans el main.c
+Commande à ajouter dans le main.c
 
 ```
 int __io_putchar(int ch) {
@@ -14,9 +14,9 @@ return ch;
 
 > Le fichier main.c se situe dans le répertoire du projet, puis dans Core/Src/main.c.
 
-1. À quoi servent les commentaires indiquant BEGIN et END?
+2. À quoi servent les commentaires indiquant BEGIN et END?
 
-> Cela permet à l'interprétteur de comprendre que le code entre ces deux marqueurs ne doit pas être écrésé le code a chaque regenérations du projet.
+> Cela permet à l'interpréteur de comprendre que le code entre ces deux marqueurs ne doit pas être écrésé le code a chaque regenérations du projet.
 
 Deux fonctions à utiliser :
 >  HAL_Delay
@@ -24,15 +24,14 @@ Deux fonctions à utiliser :
 >  HAL_GPIO_TogglePin
 
 
-1. Quels sont les paramètres à passer à HAL_Delay et HAL_GPIO_TogglePin?
+3. Quels sont les paramètres à passer à HAL_Delay et HAL_GPIO_TogglePin?
    
 ```
 void HAL_Delay(uint32_t Delay);
 void HAL_GPIO_TogglePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
 ```
 4. Dans quel fichier les ports d’entrée/sorties sont-ils définis?
-   
-Les E/S sont définient dans le fichier portant le nom du projet .ioc.
+> Les E/S sont définient dans le fichier portant le nom du projet .ioc.
 
 5. Écrivez un programme simple permettant de faire clignoter la LED.
 ```
@@ -111,7 +110,7 @@ int main(void)
    
 * En quoi le paramètre TOTAL_HEAP_SIZE a-t-il de l’importance ?
   
-    > TOTAL_HEAP_SIZE définit la quantité totale de mémoire RAM réservée aux allocations dynamiques, ce qui est crucial pour éviter les débordements et gérer efficacement les ressources limitées des systèmes embarqués. Une taille appropriée impacte directement la stabilité, les performances et la prédictibilité du programme.
+> TOTAL_HEAP_SIZE définit la quantité totale de mémoire RAM réservée aux allocations dynamiques, ce qui est crucial pour éviter les débordements et gérer efficacement les ressources limitées des systèmes embarqués. Une taille appropriée impacte directement la stabilité, les performances et la prédictibilité du programme.
 
 
 2. Créez une tâche permettant de faire changer l’état de la LED toutes les `100ms` et profitez-en pour afficher du texte à chaque changement d’état.
@@ -129,7 +128,7 @@ void task_led(void *unused)
    
 * Quel est le rôle de la macro portTICK_PERIOD_MS ?
 
-    > La macro portTICK_PERIOD_MS dans FreeRTOS permet de définir la durée d'un tick en ms. 
+> La macro portTICK_PERIOD_MS dans FreeRTOS permet de définir la durée d'un tick en ms. 
 
 
 ### 1.2 Sémaphores pour la synchronisation
@@ -417,15 +416,12 @@ AVANT GIVE : 0
 9. Recopiez le code ci-dessous – au bon endroit – dans votre code.
 
 10. Observez attentivement la sortie dans la console. Expliquez d’où vient le problème.
+> La sortie dans la console, on observe :
 ```
-La sortie dans la console, on observe :
-
 Je suis Tache 1 et je m'endors pour 2 ticks
 Je suis Tache 2 et je m'endors pour 2 ticks
-
-Le bon nom de tâche est affiché, mais c'est le délai de la tâche 2 qui est affiché pour les deux tâches.
-Ce "problème" est lié à la priorité des tâches : la tâche 2 est + prioritaire que la 1, donc elle intercèpte son fonctionnement.
 ```
+> Le bon nom de tâche est affiché, mais c'est le délai de la tâche 2 qui est affiché pour les deux tâches. Ce "problème" est lié à la priorité des tâches : la tâche 2 est + prioritaire que la 1, donc elle intercèpte son fonctionnement.
 
 11. Proposez une solution en utilisant un sémaphore Mutex.
 ```
@@ -462,28 +458,23 @@ semaphore_bug = xSemaphoreCreateMutex();
 > - soit modifier la priorité de l’interruption de l’USART1 (0 par défaut). 
 >     Dans l’exemple montré en Figure 1, la priorité de l’interruption de l’USART1 est fixée à 5.
 #
-1. Terminer l’intégration du shell commencé en TD. Pour mémoire, les questions
-du TD sont rappelées ci-dessous :
-   * Créer le projet, compiler et observer. Appeler la fonction depuis le shell.
-   * Les fichiers sont disponibles sur moodle, dans la section TD.
-   * Modifier la fonction pour faire apparaître la liste des arguments.
-   * Expliquer les mécanismes qui mènent à l’exécution de la fonction.
-   * Quel est le problème ?
-   * Proposer une solution
+1. Terminer l’intégration du shell commencé en TD.
 
 2. Que se passe-t-il si l’on ne respecte pas les priorités décrites précédemment ?
 
-    > Comportement imprévisible et erreurs difficiles à déboguer : Des appels de fonctions FreeRTOS depuis un contexte d'interruption non autorisé peuvent corrompre la mémoire partagée entre les tâches ou l'état de l'ordonnanceur de manière subtile.
+> Comportement imprévisible et erreurs difficiles à déboguer : Des appels de fonctions FreeRTOS depuis un contexte d'interruption non autorisé peuvent corrompre la mémoire partagée entre les tâches ou l'état de l'ordonnanceur de manière subtile.
         
-    > Perte de données ou corruption : Si l'interruption de l'USART1 gère la réception ou la transmission de données importantes, une mauvaise gestion des priorités pourrait entraîner des pertes de données si l'interruption est retardée ou si elle interfère incorrectement avec les opérations de FreeRTOS.
+> Perte de données ou corruption : Si l'interruption de l'USART1 gère la réception ou la transmission de données importantes, une mauvaise gestion des priorités pourrait entraîner des pertes de données si l'interruption est retardée ou si elle interfère incorrectement avec les opérations de FreeRTOS.
     
-    > Instabilité du système : Dans des scénarios plus complexes, des violations de priorité peuvent introduire des conditions de concurrence critiques difficiles à prévoir et à reproduire.
+> Instabilité du système : Dans des scénarios plus complexes, des violations de priorité peuvent introduire des conditions de concurrence critiques difficiles à prévoir et à reproduire.
 
 3. Écrire une fonction `led()`, appelable depuis le shell, permettant de faire clignoter la LED (PI1 sur la carte). 
    
     Un paramètre de cette fonction configure la periode de clignotement. Une valeur de 0 maintient la LED éteinte.
     
     Le clignotement de la LED s’effectue dans une tâche. Il faut donc trouver un moyen de faire communiquer *proprement* la fonction led avec la tâche de clignotement.
+
+> On utilise une Queue pour transmettre le délai de clignotement renseigné dans le shell à la tâche qui fait clignoter la LED.
 ```
 void task_led(void *unused)
 {
@@ -680,19 +671,15 @@ On fait évoluer la taille du tas pour voir l'évolution de la RAM,
 De base, le tas est compris dans les 5.92 % de la taille de la RAM. Pour notre TP, on fait x10 sur la taille du tas.
 
 4. Notez la mémoire RAM et Flash utilisée.
-```
-Voici l'état de notre mémoire : 
-text	   data	    bss
-31368	   116	  19276
-```
+    > Voici l'état de notre mémoire : 
+    > text	   data	    bss
+    > 31368	   116	  19276
    ![image](https://github.com/user-attachments/assets/73a4f9fe-49a9-45af-86fc-3677314e49f8)
 
 5. Créez des tâches bidons jusqu’à avoir une erreur.
-```
-En créant des tâches bidons, voici l'état de la mémoire. Je n'ai pas obtenue d'erreur. La taille du texte a légèrement augmenté, ce qui correspond au code supplémentaire qui a permis de créer les tâches.
-text	   data	    bss
-32652	   116	  19276
-```
+    > En créant des tâches bidons, voici l'état de la mémoire. Je n'ai pas obtenue d'erreur. La   taille du texte a légèrement augmenté, ce qui correspond au code supplémentaire qui a permis de créer les tâches.
+    > text	   data	    bss
+    > 32652	   116	  19276
    ![image](https://github.com/user-attachments/assets/73a4f9fe-49a9-45af-86fc-3677314e49f8)
 
 ### 3.2 Gestion des piles
