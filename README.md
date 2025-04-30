@@ -220,30 +220,9 @@ AVANT GIVE
                         APRES TAKE
                 AVANT TAKE
         APRES GIVE -- 200
-AVANT GIVE
-                        APRES TAKE
-                AVANT TAKE
-        APRES GIVE -- 300
-AVANT GIVE
-                        APRES TAKE
-                AVANT TAKE
-        APRES GIVE -- 400
-AVANT GIVE
-                        APRES TAKE
-                AVANT TAKE
-        APRES GIVE -- 500
-AVANT GIVE
-                        APRES TAKE
-                AVANT TAKE
-        APRES GIVE -- 600
-AVANT GIVE
-                        APRES TAKE
-                AVANT TAKE
-        APRES GIVE -- 700
-AVANT GIVE
-                        APRES TAKE
-                AVANT TAKE
-        APRES GIVE -- 800
+.
+.
+.
 AVANT GIVE
                         APRES TAKE
                 AVANT TAKE
@@ -275,30 +254,9 @@ AVANT GIVE
         APRES GIVE -- 200
                         APRES TAKE
                 AVANT TAKE
-AVANT GIVE
-        APRES GIVE -- 300
-                        APRES TAKE
-                AVANT TAKE
-AVANT GIVE
-        APRES GIVE -- 400
-                        APRES TAKE
-                AVANT TAKE
-AVANT GIVE
-        APRES GIVE -- 500
-                        APRES TAKE
-                AVANT TAKE
-AVANT GIVE
-        APRES GIVE -- 600
-                        APRES TAKE
-                AVANT TAKE
-AVANT GIVE
-        APRES GIVE -- 700
-                        APRES TAKE
-                AVANT TAKE
-AVANT GIVE
-        APRES GIVE -- 800
-                        APRES TAKE
-                AVANT TAKE
+.
+.
+.
 AVANT GIVE
         APRES GIVE -- 900
                         APRES TAKE
@@ -410,26 +368,9 @@ AVANT GIVE : 312
                         APRES TAKE : 312
                 AVANT TAKE
         APRES GIVE : 312
-AVANT GIVE : 618
-                        APRES TAKE : 618
-                AVANT TAKE
-        APRES GIVE : 618
-AVANT GIVE : 1024
-                        APRES TAKE : 1024
-                AVANT TAKE
-        APRES GIVE : 1024
-AVANT GIVE : 1530
-                        APRES TAKE : 1530
-                AVANT TAKE
-        APRES GIVE : 1530
-AVANT GIVE : 2136
-                        APRES TAKE : 2136
-                AVANT TAKE
-        APRES GIVE : 2136
-AVANT GIVE : 2842
-                        APRES TAKE : 2842
-                AVANT TAKE
-        APRES GIVE : 2842
+.
+.
+.
 AVANT GIVE : 3648
                         APRES TAKE : 3648
                 AVANT TAKE
@@ -459,30 +400,9 @@ AVANT GIVE : 305
                         APRES TAKE : 305
                 AVANT TAKE
         APRES GIVE : 305
-AVANT GIVE : 608
-                        APRES TAKE : 608
-                AVANT TAKE
-        APRES GIVE : 608
-AVANT GIVE : 1011
-                        APRES TAKE : 1011
-                AVANT TAKE
-        APRES GIVE : 1011
-AVANT GIVE : 1514
-                        APRES TAKE : 1514
-                AVANT TAKE
-        APRES GIVE : 1514
-AVANT GIVE : 2117
-                        APRES TAKE : 2117
-                AVANT TAKE
-        APRES GIVE : 2117
-AVANT GIVE : 2820
-                        APRES TAKE : 2820
-                AVANT TAKE
-        APRES GIVE : 2820
-AVANT GIVE : 3623
-                        APRES TAKE : 3623
-                AVANT TAKE
-        APRES GIVE : 3623
+.
+.
+.
 AVANT GIVE : 4526
                         APRES TAKE : 4526
                 AVANT TAKE
@@ -669,9 +589,6 @@ int main(void)
 
 4. Écrire une fonction `spam()`, semblable à la fonction `led()` qui affiche du texte dans la liaison série au lieu de faire clignoter les LED. 
    On peut ajouter comme argument le message à afficher et le nombre de valeurs à afficher. 
-
-![image](https://github.com/user-attachments/assets/d63b248b-534c-4783-aed5-d9f0ae1d55ea)
-
 ```
 void task_spam(void *unused)
 {
@@ -738,7 +655,7 @@ int main(void)
 	vTaskStartScheduler(); // Appelle l'OS (avec une fonction freertos)
 }
 ```
-
+![image](https://github.com/user-attachments/assets/d63b248b-534c-4783-aed5-d9f0ae1d55ea)
 
 
 ## 3 Debug, gestion d’erreur et statistiques
