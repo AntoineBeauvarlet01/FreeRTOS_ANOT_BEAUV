@@ -686,30 +686,35 @@ De base, le tas est compris dans les 5.92 % de la taille de la RAM. Pour notre T
 *Dans cette partie du TP, vous allez utiliser un hook `(une fonction appelée par l’OS, dont on peut écrire le contenu)` pour détecter les dépassements de pile `(Stack Overflow en anglais)`.*
 1. Lisez la doc suivante :
     > https://www.freertos.org/Stacks-and-stack-overflow-checking.html
-# notions de la doc :
-- Chaque tâche a sa propre pile.
-- La taille de la pile est définie lors de la création de la tâche (xTaskCreate() alloue dynamiquement, xTaskCreateStatic() nécessite une pré-allocation).
-- Le débordement de pile est une cause d'instabilité.
-- FreeRTOS offre deux mécanismes optionnels de détection via configCHECK_FOR_STACK_OVERFLOW (1 ou 2).
-- Si la vérification est activée (configCHECK_FOR_STACK_OVERFLOW != 0), une fonction hook vApplicationStackOverflowHook() doit être fournie par l'application.
-- La fonction hook reçoit des informations sur la tâche fautive (handle et nom), qui peuvent être corrompues en cas de débordement sévère.
-- La vérification de débordement introduit une surcharge et est recommandée principalement pour le développement et les tests.
-* Méthode 1 (rapide) : Vérifie si le pointeur de pile reste dans la plage valide après la commutation de contexte.
-* Méthode 2 (plus complète) : Vérifie si les 16 derniers octets de la pile (initialisés avec une valeur connue) ont été écrasés.
-* Méthode 3 (spécifique à certains ports) : Active la vérification de la pile des ISR et déclenche une assertion en cas de débordement (pas de fonction hook).
-#  
+
 2. Dans CubeMX, configurez `CHECK_FOR_STACK_OVERFLOW`
+> CHECK_FOR_STACK_OVERFLOW -> Option 1
 
 3. Écrivez la fonction `vApplicationStackOverflowHook`. 
-> *(Rappel : C’est une fonction appelée automatiquement par FreeRTOS, vous n’avez pas à l’appeler vous-même).*
+   *(Rappel : C’est une fonction appelée automatiquement par FreeRTOS, vous n’avez pas à l’appeler vous-même).*
+```
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
+{
+	printf("La tache %s a genere un overflow.\r\n", pcTaskName);
+}
+```
 
 4. Débrouillez vous pour remplir la pile d’une tâche pour tester. 
    * Notez que, vu le contexte d’erreur, il ne sera peut-être pas possible de faire grand chose dans cette fonction. 
    * Utilisez le debugger.
-
+> J'ai abaissé la taille de la pile réservée à la tâche SPAM, ce qui a créé un overflow.
+```
+#define TASK_SPAM_STACK_DEPTH 25 // Taille de la pile divisée par 10
+```
+![image](https://github.com/user-attachments/assets/f96a8265-e6f2-469c-8894-c92e7aca375e)
 
 5. Il existe d’autres hooks. Expliquez l’intérêt de chacun d’entre eux.
+> Méthode 1 (rapide) : Vérifie si le pointeur de pile reste dans la plage valide après la commutation de contexte. (utilisé ci-dessus)
 
+> Méthode 2 (plus complète) : Vérifie si les 16 derniers octets de la pile (initialisés avec une valeur connue) ont été écrasés.
+
+> Méthode 3 (spécifique à certains ports) : Active la vérification de la pile des ISR et déclenche une assertion en cas de débordement (pas de fonction hook).
+  
 ### 3.3 Statistiques dans l’IDE
 *On peut afficher un certain nombre d’informations relatives à FreeRTOS dans STM32CubeIDE en mode debug.*
 1. Dans CubeMX, activez les trois paramètres suivants :
