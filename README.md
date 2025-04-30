@@ -671,15 +671,19 @@ On fait évoluer la taille du tas pour voir l'évolution de la RAM,
 De base, le tas est compris dans les 5.92 % de la taille de la RAM. Pour notre TP, on fait x10 sur la taille du tas.
 
 4. Notez la mémoire RAM et Flash utilisée.
-    > Voici l'état de notre mémoire : 
-    > text	   data	    bss
-    > 31368	   116	  19276
+    > Voici l'état de notre mémoire :
+```
+text	   data	    bss
+*31368*	   116	  19276
+```
    ![image](https://github.com/user-attachments/assets/73a4f9fe-49a9-45af-86fc-3677314e49f8)
 
 5. Créez des tâches bidons jusqu’à avoir une erreur.
     > En créant des tâches bidons, voici l'état de la mémoire. Je n'ai pas obtenue d'erreur. La   taille du texte a légèrement augmenté, ce qui correspond au code supplémentaire qui a permis de créer les tâches.
-    > text	   data	    bss
-    > 32652	   116	  19276
+```
+text	   data	    bss
+*32652*	   116	  19276
+```
    ![image](https://github.com/user-attachments/assets/73a4f9fe-49a9-45af-86fc-3677314e49f8)
 
 ### 3.2 Gestion des piles
