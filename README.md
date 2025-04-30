@@ -761,8 +761,10 @@ pouvant générer des erreurs. En cas d’erreur, affichez un message et appelez
   
 # Nous en sommes Lààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààààà
 
-on fait évoluer la taille du tas pour voir l'évolution de la ram,
-de base, le tats est compris dans les 5.82 % d'utilisation, pour notre tp on viens faire x10 sur la taille du tas
+on fait évoluer la taille du tas pour voir l'évolution de la RAM,
+De base, le tas est compris dans les 5.82 % d'utilisation, pour notre tp, on vient faire x10 sur la taille du tas.
+
+
 4. Notez la mémoire RAM et Flash utilisée, comme dans l’exemple ci-dessous
    ![alt text](image-1.png)
 
