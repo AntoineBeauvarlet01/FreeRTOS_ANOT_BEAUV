@@ -731,10 +731,11 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 ![image](https://github.com/user-attachments/assets/154719d3-39bf-44e7-ab80-066db0adf9a3)
 
 5. Cherchez dans CubeMX comment faire pour afficher l’utilisation de la pile.
-En mode debug, cliquez sur `Toggle Stack Checking` (dans l’onglet `FreeRTOSTask List` en haut à droite).
+*En mode debug, cliquez sur `Toggle Stack Checking` (dans l’onglet `FreeRTOSTask List` en haut à droite).*
+> En cliquant sur `Toggle Stack Checking`, il est indiqué dans la colonne `Min Free Stack` la taille minimum de la pile pour chaque tâche (ici > 256, en effet elle est définie à 250).
+![image](https://github.com/user-attachments/assets/d220b2d8-dee6-4148-974e-427ad5aea965)
 
-
-6. Pour afficher le taux d’utilisation du CPU, il faut écrire les deux fonctions suivantes :
+7. Pour afficher le taux d’utilisation du CPU, il faut écrire les deux fonctions suivantes :
 ```
 void configureTimerForRunTimeStats(void);
 unsigned long getRunTimeCounterValue(void);
