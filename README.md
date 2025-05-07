@@ -1,12 +1,19 @@
 # FreeRTOS_ANOT-DELCOURT_BEAUVARLET
+
+## NOTE
+> Dans TP_FreeRTOS : il y a le début du TP, avant le shell
+
+> Dans rtos_td_shell : il y a la fin du TP, à partir du shell
+
+
 TP 3DN - Noyau temps réel
 ![alt text](image.png)
 
-1. Où se situe le fichier main.c?
+1. Où se situe le fichier main.c ?
 
 > Le fichier main.c se situe dans le répertoire du projet, puis dans Core/Src/main.c.
 
-2. À quoi servent les commentaires indiquant BEGIN et END?
+2. À quoi servent les commentaires indiquant BEGIN et END ?
 
 > Cela permet à l'interpréteur de comprendre que le code entre ces deux marqueurs ne doit pas être écrésé le code a chaque regenérations du projet.
 
@@ -16,7 +23,7 @@ Deux fonctions à utiliser :
 >  HAL_GPIO_TogglePin
 
 
-3. Quels sont les paramètres à passer à HAL_Delay et HAL_GPIO_TogglePin?
+3. Quels sont les paramètres à passer à HAL_Delay et HAL_GPIO_TogglePin ?
    
 ```
 void HAL_Delay(uint32_t Delay);
