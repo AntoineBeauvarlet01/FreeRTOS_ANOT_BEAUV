@@ -752,14 +752,35 @@ unsigned long getRunTimeCounterValue(void);
 *Si vous utilisez un timer 16 bits, il faudra peut-être bricoler un peu.*
 *Encore une fois, ce sont des hooks, elles sont donc automatiquement appelées par l’OS.*
 
+```
+void configureTimerForRunTimeStats(void)
+{
+	h_timer = xTimerCreate("Mon premier timer :)", 1000, pdTRUE, (void *)0, NULL);
+
+	if (h_timer == NULL) {
+		Error_Handler();
+	}
+
+	if (xTimerStart(h_timer, 0) != pdPASS) {
+		Error_Handler();
+	}
+}
+
+unsigned long getRunTimeCounterValue(void)
+{
+	return (unsigned long)xTaskGetTickCount();
+}
+
+// Dans le main
+vQueueAddToRegistry(xQueueSPAM, "Queue SPAM");
+```
 
 7. Affichez les sémaphores et les queues.
-    > screen des sémaphores et les queues. 
+> ![image](https://github.com/user-attachments/assets/f9d13c9c-e290-417b-a630-1b999286379b)
+
 
 8. Si vous n’en utilisez pas dans votre projet, créez deux tâches qui se partagent une queue ou un sémaphore.
-
-
-9. Pour leur donner un nom compréhensible, utilisez la fonction `vQueueAddToRegistry`.
+> Nous avons utilisé la fonction SPAM qui utilise une queue.
 
 
 ### 3.4 Affichage des statistiques dans le shell
