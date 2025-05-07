@@ -1,14 +1,6 @@
-# FreeRTOS_ANOT_BEAUV
-TP 3DN-Noyau temps réel
+# FreeRTOS_ANOT-DELCOURT_BEAUVARLET
+TP 3DN - Noyau temps réel
 ![alt text](image.png)
-Commande à ajouter dans le main.c
-
-```
-int __io_putchar(int ch) {
-HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
-return ch;
-}
-```
 
 1. Où se situe le fichier main.c?
 
@@ -739,9 +731,7 @@ void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName)
 > En cliquant sur `Toggle Stack Checking`, il est indiqué dans la colonne `Min Free Stack` la taille minimum de la pile pour chaque tâche (ici > 256, en effet elle est définie à 250).
 ![image](https://github.com/user-attachments/assets/d220b2d8-dee6-4148-974e-427ad5aea965)
 
-# ON EST LAAAAAAAA
-
-7. Pour afficher le taux d’utilisation du CPU, il faut écrire les deux fonctions suivantes :
+6. Pour afficher le taux d’utilisation du CPU, il faut écrire les deux fonctions suivantes :
 ```
 void configureTimerForRunTimeStats(void);
 unsigned long getRunTimeCounterValue(void);
@@ -792,117 +782,29 @@ Vous pouvez vous référer à la documentation de FreeRTOS en suivant ce lien :
 Deux fonctions seront utile à cette partie du TP :
 ```
 void vTaskGetRunTimeStats(char * pcWriteBuffer);
-```
-```
 void vTaskList(char * pcWriteBuffer);
 ```
 1. Écrire une fonction appelable depuis le shell pour afficher les statistiques dans le terminal.
 ```
-`...`
+void display_stats(h_shell_t * h_shell, int argc, char ** argv)
+{
+    char runtime_stats[256];
+    vTaskGetRunTimeStats(runtime_stats);
+    printf("----- vTaskGetRunTimeStats -----\r\n%s--------------------------------\r\n", runtime_stats);
+
+    char task_list[1024];
+    vTaskList(task_list);
+    printf("----- vTaskList -----\r\n%s---------------------\r\n", task_list);
+}
 ```
+> On appelle 2 fois la fonction pour afficher les statistiques, en appelant la tâche SPAM entre les 2 appels. On observe les différences entre les statistiques des 2 appels :
+
+> ![image](https://github.com/user-attachments/assets/982f8174-4a01-4a78-a69b-d28cc5569019)
+
 
 ## 4 Écriture d’un driver
-*Ce TP se fait à la suite du TP précédent, dans le même projet.*
-*L’objectif est d’écrire un driver réutilisable pour l’accéléromètre ADXL345.*
-### 4.1 Interfacer l’ADXL345
-1. Dans le fichier `ioc`, configurez les pins suivantes :
-> * PB14 : SPI2_MISO
-> * PB15 : SPI2_MOSI
-> * PI1 : SPI2_SCK
-> * PG7 : GPIO_EXTI7 (nommez le INT)
-> * PB4 : GPIO_Output (nommez le NSS), doit être à High par défaut.
 
-2. Configurez le `SPI2` en Mode `Full-Duplex Master`, puis configurez :
-> * Frame Format    : Motorola
-> * Clock Polarity  : High
-> * Clock Phase     : 2 Edge
-> * CRC Calculation : Disabled
-> * NSS Signal Type : Software
-> * Prescaler       : Valeur permettant d’avoir un Baud Rate compatible avec le composant (voir datasheet ADXL345)
-> * Pour le reste, voir la datasheet. https://www.analog.com/media/en/technical-documentation/data-sheets/adxl345.pdf
-
-3. Câblez le composant sur la carte Discovery :
-> * VCC  sur le 5V
-> * GND  sur GND
-> * CS   sur D3
-> * SDO  sur D12
-> * SDA  sur D11
-> * SCL  sur D13
-> * INT1 sur D4
-> * INT2 non connectée.
-
-### 4.2 Premiers tests
-*L’ADXL345, comme beaucoup de capteurs, est constitué de plusieurs registres.*
-*Ces registres sont accessible à travers un bus SPI.*
-1. Créez une fonction appelable depuis le shell pour faire vos tests.
-   
-Le registre DEVID (adresse 0x00) est une constante qui permet de tester la communication SPI. Pour lire un registre, il faut d’abord écrire l’adresse, puis lire la valeur, dans la même trame SPI. Inspirez vous de l’exemple ci-dessous.
-```
-HAL_GPIO_WritePin(NSS_GPIO_Port, NSS_Pin, GPIO_PIN_RESET);
-
-HAL_SPI_Transmit(&hspi2, &address, 1, HAL_MAX_DELAY);
-
-HAL_SPI_Receive(&hspi2, p_data, size, HAL_MAX_DELAY);
-
-HAL_GPIO_WritePin(NSS_GPIO_Port, NSS_Pin, GPIO_PIN_SET);
-```
-2. Dans la fonction shell, écrivez un code permettant de récupérer la valeur du `DEVID`, et vérifiez si elle est correcte.
-```
-`...`
-```
-
-3. Quelles sont les valeurs à mettre dans les registres `INT_ENABLE` et `POWER_CTL` pour démarrer la mesure et délencher une interruption à chaque mesure ?
-   
-    > les valeurs à mettre dans les registres `INT_ENABLE` et `POWER_CTL` sont `...`
-
-4. À la suite du code précédent, dans la fonction shell, écrivez un code permettant de lire `4 valeurs` consécutives. Utilisez du `polling` pour attendre que la broche `INT1` passe à `High`.
-```
-`...`
-```
-
-5. Faites la moyenne de ces quatre valeurs, mettez les accélérations en forme, et affichez-les à travers l’UART.
-
-    > Screen de l'UART
-```
-`...`
-```
-
-### 4.3 Driver SPI
-1. Créez un dossier `adxl345` à la racine.
-
-
-2. Ajoutez le dossier au path (`Click droit` > `Add/Remove include path` ...)
-
-
-3. `Project` > `Properties`, puis `C/C++ General` > `Paths and Symbols` > `Source Location`, cliquez sur `Add Folder` puis choissisez le dossier `adxl345`.
-
-
-4. Dans ce dossier, créez deux fichiers `drv_spi.c` et `drv_spi.h`.
-
-
-5. Créez également deux fichiers `adxl345.c` et `adxl345.h`.
-
-
-6. Dans `drv_spi.h`, écrivez le prototype des trois fonctions suivantes :
-    > int drv_spi_init(void);
-
-    > int drv_spi_write(uint8_t address, uint8_t * p_data, uint16_t size);
-
-    > int drv_spi_read(uint8_t address, uint8_t * p_data, uint16_t size);
-
-
-7. Écrivez le contenu des fonctions dans le fichier `drv_spi.c`. 
-   * La fonction d’initialisation ne fait rien pour l’instant. 
-   * Les fonctions read et write utilisent les fonctions de la HAL. 
-   * Pour l’instant vous n’utiliserez pas d’interruption.
-
-
-8. Testez le driver dans le code précédent.
-
-### 4.4 Squelette du driver
-
-# DEUS VULT 8/8
-
+Nous n'avons pas eu le temps de travailler sur cette partie.
 
 
 
